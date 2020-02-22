@@ -18,7 +18,7 @@ class FileFilter implements FilenameFilter {
                break;
             }
         }
-        
+
         return test;
     }
 }
