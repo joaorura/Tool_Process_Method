@@ -11,14 +11,12 @@ class FileFilter implements FilenameFilter {
     }
 
     public boolean accept(File dir, String name) {
-        boolean test = true;
         for (String aux : this.filters) {
-            if (!name.toLowerCase().contains(aux) && name.contains(".")) {
-               test = false;
-               break;
+            if (!name.toLowerCase().contains(aux.toLowerCase())) {
+                return false;
             }
         }
 
-        return test;
+        return true;
     }
 }
