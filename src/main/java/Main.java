@@ -40,18 +40,15 @@ public class Main {
         Files.write(path, json.getBytes(), StandardOpenOption.WRITE);
     }
 
-    public static void main(String[] args) throws IOException {
-        System.out.println("Initial path: " + args[0]);
-        System.out.println("Data path: " +  args[1]);
-        
-        FileLister fileLister = new FileLister(args[0], new String[]{".java"}, true);
+    public static void processFiles(String path) throws IOException {
+        FileLister fileLister = new FileLister(path, new String[]{".java"}, true);
         ArrayList<File> files = fileLister.getFiles();
         ValidateAlgorithms validateAlgorithms = new TestValidate();
 
         for(File aux : files) {
 
-            ProcessFile processFile = new ProcessFile(aux);
-            String strFile = processFile.getStringOfFile();
+            ProcessFile theProcessFile = new ProcessFile(aux);
+            String strFile = theProcessFile.getStringOfFile();
             FilterAlgorithms filterAlgorithms = new FilterAlgorithms(strFile);
             ArrayList<String> arrayList = filterAlgorithms.getAlgorithms();
 
@@ -71,8 +68,19 @@ public class Main {
                 }
             }
         }
+    }
 
-        String json = createJson();
-        saveJson(args[1], json);
+    public static void main(String[] args) {
+        System.out.println("Initial path: " + args[0]);
+        System.out.println("Data path: " +  args[1]);
+
+        try {
+            processFiles(args[0]);
+            String json = createJson();
+            saveJson(args[1], json);
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
     }
 }
