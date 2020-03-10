@@ -46,7 +46,6 @@ public class Main {
 
         for(File aux : files) {
             new FileProcess(aux, validateAlgorithms, algorithms).run();
-            break;
         }
     }
 

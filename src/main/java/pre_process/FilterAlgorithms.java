@@ -55,7 +55,6 @@ public class FilterAlgorithms {
                 this.mapAlgorithm.put(method, arrayList);
 
                 c.accept(new MethodCallVisitor(arrayList), null);
-                System.out.println(arrayList);
             });
 
             for (Map.Entry<String, ArrayList<String>> pair : mapAlgorithm.entrySet()) {
