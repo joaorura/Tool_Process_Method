@@ -43,10 +43,10 @@ public class Main {
         FileLister fileLister = new FileLister(path, new String[]{".java"}, true);
         ArrayList<File> files = fileLister.getFiles();
         ValidateAlgorithms validateAlgorithms = new TestValidate();
-//        ArrayList<FileProcess> fileProcessesList = new ArrayList<>();
 
         for(File aux : files) {
             new FileProcess(aux, validateAlgorithms, algorithms).run();
+            break;
         }
     }
 

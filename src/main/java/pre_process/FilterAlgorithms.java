@@ -17,22 +17,22 @@ public class FilterAlgorithms {
     private ArrayList<String> answer = null;
 
     static class MethodCallVisitor extends VoidVisitorAdapter<Void> {
-        private String method;
-        private HashMap<String, ArrayList<String>> map;
+        private ArrayList<String> arrayList;
 
-        public MethodCallVisitor(HashMap<String, ArrayList<String>> map, String method) {
-            this.map = map;
-            this.method = method;
+        public MethodCallVisitor(ArrayList<String> arrayList) {
+            this.arrayList = arrayList;
         }
 
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             String scope = n.getScope().toString();
-            ArrayList<String> arrayList;
+            String strAux;
 
             if (scope.equals("Optional.empty")) {
-                arrayList = map.get(method);
-                arrayList.add(n.getName().toString());
+                strAux = n.getName().toString();
+                if(!arrayList.contains(strAux)) {
+                    arrayList.add(strAux);
+                }
             }
 
             super.visit(n, arg);
@@ -46,16 +46,16 @@ public class FilterAlgorithms {
     public ArrayList<String> getAlgorithms() {
         if(this.answer == null) {
             this.answer = new ArrayList<>();
-
             compilationUnit.findAll(MethodDeclaration.class).forEach(c -> {
                 String method = c.getName().toString();
                 String code = c.toString();
 
                 this.mapMethods.put(method, code);
+                ArrayList<String> arrayList = new ArrayList<>();
+                this.mapAlgorithm.put(method, arrayList);
 
-                this.mapAlgorithm.put(method, new ArrayList<>());
-
-                c.accept(new MethodCallVisitor(this.mapAlgorithm, method), null);
+                c.accept(new MethodCallVisitor(arrayList), null);
+                System.out.println(arrayList);
             });
 
             for (Map.Entry<String, ArrayList<String>> pair : mapAlgorithm.entrySet()) {
