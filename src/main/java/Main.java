@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import pre_process.FileLister;
 import pre_process.FilterAlgorithms;
 import pre_process.ProcessFile;
@@ -5,13 +6,39 @@ import process.TestValidate;
 import process.ValidateAlgorithms;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Main {
     private static final HashMap<String, ArrayList<String>> algorithms = new HashMap<>();
 
+    public static String createJson() {
+        Gson gson = new Gson();
+        return gson.toJson(algorithms);
+    }
+
+    public static void saveJson(String thePath, String json) throws IOException {
+        Path path = Paths.get(thePath);
+
+        try {
+            Files.createFile(path);
+        } catch (Exception e) {
+            File file = new File(path.toString());
+            boolean bool = file.delete();
+            if(bool) {
+                Files.createFile(path);
+            }
+            else {
+                throw new RuntimeException();
+            }
+        }
+
+        Files.write(path, json.getBytes(), StandardOpenOption.WRITE);
+    }
 
     public static void main(String[] args) throws IOException {
         System.out.println("Initial path: " + args[0]);
@@ -29,7 +56,6 @@ public class Main {
             for(String method : arrayList) {
                 String test = validateAlgorithms.validate(method);
 
-                //Salvar Resultado Por Interecao
                 if(test != null) {
                     ArrayList<String> auxArrayList = algorithms.get(test);
                     if(auxArrayList == null) {
@@ -44,8 +70,7 @@ public class Main {
             }
         }
 
-        //Salvar Resultado _Todo
-        System.out.println("Result");
-        System.out.println(algorithms);
+        String json = createJson();
+        saveJson(args[1], json);
     }
 }
