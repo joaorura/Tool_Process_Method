@@ -42,6 +42,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         System.out.println("Initial path: " + args[0]);
+        System.out.println("Data path: " +  args[1]);
+        
         FileLister fileLister = new FileLister(args[0], new String[]{".java"}, true);
         ArrayList<File> files = fileLister.getFiles();
         ValidateAlgorithms validateAlgorithms = new TestValidate();
