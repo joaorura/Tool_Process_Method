@@ -2,6 +2,7 @@ import com.google.gson.Gson;
 import pre_process.FileLister;
 import pre_process.FilterAlgorithms;
 import pre_process.ProcessFile;
+import process.FileProcess;
 import process.TestValidate;
 import process.ValidateAlgorithms;
 
@@ -40,33 +41,14 @@ public class Main {
         Files.write(path, json.getBytes(), StandardOpenOption.WRITE);
     }
 
-    public static void processFiles(String path) throws IOException {
+    public static void processFiles(String path) {
         FileLister fileLister = new FileLister(path, new String[]{".java"}, true);
         ArrayList<File> files = fileLister.getFiles();
         ValidateAlgorithms validateAlgorithms = new TestValidate();
+//        ArrayList<FileProcess> fileProcessesList = new ArrayList<>();
 
         for(File aux : files) {
-
-            ProcessFile theProcessFile = new ProcessFile(aux);
-            String strFile = theProcessFile.getStringOfFile();
-            FilterAlgorithms filterAlgorithms = new FilterAlgorithms(strFile);
-            ArrayList<String> arrayList = filterAlgorithms.getAlgorithms();
-
-            for(String method : arrayList) {
-                String test = validateAlgorithms.validate(method);
-
-                if(test != null) {
-                    ArrayList<String> auxArrayList = algorithms.get(test);
-                    if(auxArrayList == null) {
-                        auxArrayList = new ArrayList<>();
-                        auxArrayList.add(method);
-                        algorithms.put(test, auxArrayList);
-                    }
-                    else {
-                        auxArrayList.add(method);
-                    }
-                }
-            }
+            new FileProcess(aux, validateAlgorithms, algorithms).run();
         }
     }
 
