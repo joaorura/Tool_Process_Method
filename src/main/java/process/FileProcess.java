@@ -1,51 +1,39 @@
 package process;
 
 
-import pre_process.FilterAlgorithms;
 import pre_process.ProcessFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class FileProcess {
     private File file;
-    private ValidateAlgorithms validateAlgorithms;
-    private HashMap<String, ArrayList<String>> algorithms;
-
-    public FileProcess(File file, ValidateAlgorithms validateAlgorithms, HashMap<String, ArrayList<String>> algorithms) {
+    private ArrayList<String> algorithms;
+    private boolean process = false;
+    public FileProcess(File file, ArrayList<String> algorithms) {
         this.file = file;
-        this.validateAlgorithms = validateAlgorithms;
         this.algorithms = algorithms;
     }
 
-    public void run() {
-        ProcessFile theProcessFile = new ProcessFile(this.file);
-        String strFile;
+    public void process() {
+        if(!this.process) {
+            this.process = true;
 
-        try {
-            strFile = theProcessFile.getStringOfFile();
-        } catch (IOException e) {
-            return;
-        }
+            ProcessFile theProcessFile = new ProcessFile(this.file);
+            String strFile;
+            try {
+                strFile = theProcessFile.getStringOfFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
 
-        FilterAlgorithms filterAlgorithms = new FilterAlgorithms(strFile);
-        ArrayList<String> arrayList = filterAlgorithms.getAlgorithms();
-
-        for(String method : arrayList) {
-            String test = this.validateAlgorithms.validate(method);
-
-            if(test != null) {
-                ArrayList<String> auxArrayList = algorithms.get(test);
-                if(auxArrayList == null) {
-                    auxArrayList = new ArrayList<>();
-                    auxArrayList.add(method);
-                    algorithms.put(test, auxArrayList);
-                }
-                else {
-                    auxArrayList.add(method);
-                }
+            try {
+                FilterCode filterCode = new FilterCode(strFile);
+                this.algorithms.addAll(filterCode.getAlgorithms());
+            } catch (Exception e) {
+                System.out.println("Error processing file: " + this.file);
             }
         }
     }

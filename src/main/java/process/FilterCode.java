@@ -1,4 +1,4 @@
-package pre_process;
+package process;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FilterAlgorithms {
+public class FilterCode {
     private CompilationUnit compilationUnit;
     private HashMap<String, ArrayList<String>> mapAlgorithm = new HashMap<>();
     private HashMap<String, String> mapMethods = new HashMap<>();
@@ -39,7 +39,7 @@ public class FilterAlgorithms {
         }
     }
 
-    public FilterAlgorithms(String text) {
+    public FilterCode(String text) {
         this.compilationUnit = StaticJavaParser.parse(String.valueOf(text));
     }
 

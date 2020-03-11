@@ -1,8 +1,6 @@
 import com.google.gson.Gson;
 import pre_process.FileLister;
 import process.FileProcess;
-import process.TestValidate;
-import process.ValidateAlgorithms;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -10,10 +8,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 public class Main {
-    private static final HashMap<String, ArrayList<String>> algorithms = new HashMap<>();
+    private static final ArrayList<String> algorithms = new ArrayList<>();
 
     public static String createJson() {
         Gson gson = new Gson();
@@ -42,14 +40,17 @@ public class Main {
     public static void processFiles(String path) {
         FileLister fileLister = new FileLister(path, new String[]{".java"}, true);
         ArrayList<File> files = fileLister.getFiles();
-        ValidateAlgorithms validateAlgorithms = new TestValidate();
 
         for(File aux : files) {
-            new FileProcess(aux, validateAlgorithms, algorithms).run();
+            new FileProcess(aux, algorithms).process();
         }
     }
 
     public static void main(String[] args) {
+        if(args.length != 2) {
+            throw new RuntimeException("Argumentos do Programa em Falta");
+        }
+
         System.out.println("Initial path: " + args[0]);
         System.out.println("Data path: " +  args[1]);
 
