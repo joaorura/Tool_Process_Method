@@ -33,7 +33,7 @@ public class FileProcess {
                 FilterCode filterCode = new FilterCode(strFile);
                 this.algorithms.addAll(filterCode.getAlgorithms());
             } catch (Exception e) {
-                System.out.println("Error processing file: " + this.file);
+                throw  new RuntimeException("Error processing file: " + this.file + "\n");
             }
         }
     }
