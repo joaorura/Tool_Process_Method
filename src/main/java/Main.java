@@ -69,6 +69,7 @@ public class Main {
 
         System.out.println("Process Done!!");
         System.out.println("Porcentagem de arquivos com erros:" + (((float) count / files.size()) * 100) + "%");
+        System.out.println("Numéro de métodos colétados: " + algorithms.size());
     }
 
     public static void main(String[] args) {

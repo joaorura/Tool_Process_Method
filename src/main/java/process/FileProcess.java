@@ -5,6 +5,7 @@ import pre_process.ProcessFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class FileProcess {
@@ -24,9 +25,10 @@ public class FileProcess {
             String strFile;
             try {
                 strFile = theProcessFile.getStringOfFile();
+                byte[] utf8 = strFile.getBytes(StandardCharsets.UTF_8);
+                strFile = new String(utf8, StandardCharsets.UTF_8);
             } catch (IOException e) {
-                e.printStackTrace();
-                return;
+                throw new RuntimeException("Error ao ler arquivo e converter para UTF-8");
             }
 
             try {
