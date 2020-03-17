@@ -1,3 +1,5 @@
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.StaticJavaParser;
 import com.google.gson.Gson;
 import pre_process.FileLister;
 import process.FileProcess;
@@ -73,6 +75,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        StaticJavaParser.getConfiguration().setAttributeComments(false);
+        
         if(args.length != 2) {
             throw new RuntimeException("Argumentos do Programa em Falta");
         }
