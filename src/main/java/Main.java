@@ -76,7 +76,7 @@ public class Main {
 
     public static void main(String[] args) {
         StaticJavaParser.getConfiguration().setAttributeComments(false);
-        
+
         if(args.length != 2) {
             throw new RuntimeException("Argumentos do Programa em Falta");
         }
