@@ -1,15 +1,17 @@
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.StaticJavaParser;
 import com.google.gson.Gson;
+import plus.ChangeNameMethod;
+import plus.CodeModel;
+import plus.CreateRepositorie;
 import pre_process.FileLister;
 import process.FileProcess;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import static utils.Utils.saveInFile;
 
 
 public class Main {
@@ -17,39 +19,9 @@ public class Main {
     private static char[] animationChars = new char[]{'|', '/', '-', '\\'};
 
 
-    public static String createJson() {
+    public static String createJson(Object element) {
         Gson gson = new Gson();
-        return gson.toJson(algorithms);
-    }
-
-    public static void saveJson(String thePath, String json)  {
-        Path path = Paths.get(thePath);
-
-        try {
-            Files.createFile(path);
-        } catch (Exception e) {
-            File file = new File(path.toString());
-            boolean bool = file.delete();
-
-            if(bool) {
-                try {
-                    Files.createFile(path);
-                }
-                catch (IOException a) {
-                    throw new RuntimeException("Não está sendo possível criar o arquivo.");
-                }
-            }
-            else {
-                throw new RuntimeException("O delete do arquivo falhou e o mesmo é existente.");
-            }
-        }
-
-        try {
-            Files.write(path, json.getBytes(), StandardOpenOption.WRITE);
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Não está sendo possível escrever no arquivo criado.");
-        }
+        return gson.toJson(element);
     }
 
     public static void processFiles(String path) {
@@ -74,9 +46,7 @@ public class Main {
         System.out.println("Numéro de métodos colétados: " + algorithms.size());
     }
 
-    public static void main(String[] args) {
-        StaticJavaParser.getConfiguration().setAttributeComments(false);
-
+    public static void processFileAndGetMethods(String[] args) {
         if(args.length != 2) {
             throw new RuntimeException("Argumentos do Programa em Falta");
         }
@@ -87,10 +57,86 @@ public class Main {
         processFiles(args[0]);
 
         try {
-            String json = createJson();
-            saveJson(args[1], json);
+            String json = createJson(algorithms);
+            saveInFile(args[1], json);
         } catch (Exception e) {
             System.out.println(e.getMessage() + "\n\nError na cricao da String json ou no salvamente desta");
+        }
+    }
+
+    public static HashMap<String, ArrayList<String>> processCsvAndChangeMethodName(String[] args, boolean jsonSave) {
+        String csvFile = args[0];
+        String pathToSave = args[1];
+        StringBuilder stringBuilder;
+        CodeModel[] codeModels;
+        FileReader fileReader;
+        ChangeNameMethod changeNameMethod;
+        ArrayList<String> arrayList;
+        HashMap<String, ArrayList<String>> hashMap = new HashMap<>();
+        int count = 0, countError = 0;
+
+        try {
+            fileReader = new FileReader(csvFile);
+            codeModels =  new Gson().fromJson(fileReader, CodeModel[].class);
+
+            for(CodeModel codeModel : codeModels) {
+                try {
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append("public class ");
+                    codeModel.result = codeModel.result.replace("['", "").replace("']", "");
+                    stringBuilder.append(codeModel.result);
+                    stringBuilder.append(count);
+                    stringBuilder.append("Class");
+                    stringBuilder.append(" {\n");
+                    stringBuilder.append(codeModel.code);
+                    stringBuilder.append("\n}");
+
+                    changeNameMethod = new ChangeNameMethod(stringBuilder.toString(), codeModel.result);
+                    arrayList = hashMap.get(codeModel.result);
+                    if (arrayList == null) {
+                        arrayList = new ArrayList<>();
+                        hashMap.put(codeModel.result, arrayList);
+                    } else {
+                        arrayList.add(changeNameMethod.getNewCode());
+                    }
+                }
+                catch (Exception e) {
+                    countError += 1;
+                }
+
+                count += 1;
+            }
+
+            if(jsonSave) {
+                saveInFile(pathToSave, new Gson().toJson(hashMap));
+            }
+        }
+        catch (IOException e) {
+            System.out.println("Error in file path or in permissions of SO.");
+        }
+
+        System.out.println("Percent of Error: " + ((float) countError/count) + "%");
+        return hashMap;
+    }
+
+    public static void main(String[] args) {
+        StaticJavaParser.getConfiguration().setAttributeComments(false);
+        int type = Integer.parseInt(args[0]);
+        String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+
+        switch (type) {
+            case 0:
+                processFileAndGetMethods(newArgs);
+                break;
+            case 1:
+                processCsvAndChangeMethodName(newArgs, true);
+                break;
+            case 2:
+                HashMap<String, ArrayList<String>> hashMap = processCsvAndChangeMethodName(newArgs, false);
+                new CreateRepositorie(hashMap, newArgs[1]).process();
+                break;
+            default:
+                System.out.println("Error in type described, must be 0 in 1");
         }
 
     }
