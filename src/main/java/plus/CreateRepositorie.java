@@ -19,32 +19,22 @@ public class CreateRepositorie {
         this.pathToSave = pathToSave;
     }
 
+    private void saveFile(String code, String type) {
+        String nameOfFile = StaticJavaParser.parse(code).findFirst(ClassOrInterfaceDeclaration.class).get().getName() + ".java";
+        String path = pathToSave + "\\" + type + "\\" + nameOfFile;
+        saveInFile(path, code);
+    }
+
     public void process() {
-        Random random = new Random();
-        int count_test = 0, count_val = 0, size = 0;
+        int size, i;
+        ArrayList<String> arrayList;
 
         for (Map.Entry<String, ArrayList<String>> entry : hashMap.entrySet()) {
-            size += entry.getValue().size();
-        }
-
-        for (Map.Entry<String, ArrayList<String>> entry : hashMap.entrySet()) {
-            for(String code : entry.getValue()) {
-                String nameOfFile = StaticJavaParser.parse(code).findFirst(ClassOrInterfaceDeclaration.class).get().getName() + ".java";
-                String path = "";
-                int test = random.nextInt(3);
-
-                if (test == 0 && count_test < size * 0.05) {
-                    count_test += 1;
-                    path += pathToSave + "\\test\\" + nameOfFile;
-                } else if(test == 1 && count_val < size * 0.15) {
-                    count_val += 1;
-                    path += pathToSave + "\\validate\\" + nameOfFile;
-                } else {
-                    path += pathToSave + "\\train\\" + nameOfFile;
-                }
-
-                saveInFile(path, code);
-            }
+            arrayList = entry.getValue();
+            size = arrayList.size();
+            for (i = 0; i < size * 0.05; i++) saveFile(arrayList.get(i), "test");
+            for (; i < size * 0.20; i++) saveFile(arrayList.get(i), "validate");
+            for(; i < size; i++) saveFile(arrayList.get(i), "train");
         }
     }
 }
