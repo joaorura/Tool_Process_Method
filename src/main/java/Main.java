@@ -1,15 +1,21 @@
 import com.github.javaparser.StaticJavaParser;
 import com.google.gson.Gson;
+import com.sun.tools.javac.jvm.Code;
+import org.javatuples.Pair;
 import plus.ChangeNameMethod;
-import plus.CodeModel;
+import plus.RemoveLines;
+import plus.json_models.CodeModel;
 import plus.CreateRepositorie;
 import pre_process.FileLister;
 import process.FileProcess;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static utils.Utils.saveInFile;
 
@@ -18,6 +24,7 @@ public class Main {
     private static final ArrayList<String> algorithms = new ArrayList<>();
     private static char[] animationChars = new char[]{'|', '/', '-', '\\'};
 
+    private static int numberThreads = 12 * 3;
 
     public static String createJson(Object element) {
         Gson gson = new Gson();
@@ -64,24 +71,21 @@ public class Main {
         }
     }
 
+    private static CodeModel[] getJsonData(String jsonFile) throws FileNotFoundException {
+        FileReader fileReader = new FileReader(jsonFile);
+        return new Gson().fromJson(fileReader, CodeModel[].class);
+    }
+
     public static HashMap<String, ArrayList<String>> processCsvAndChangeMethodName(String[] args, boolean jsonSave) {
-        String csvFile = args[0];
+        String jsonFile = args[0];
         String pathToSave = args[1];
-        StringBuilder stringBuilder;
-        CodeModel[] codeModels;
-        FileReader fileReader;
-        ChangeNameMethod changeNameMethod;
-        ArrayList<String> arrayList;
-        HashMap<String, ArrayList<String>> hashMap = new HashMap<>();
         int count = 0, countError = 0;
+        HashMap<String, ArrayList<String>> hashMap = new HashMap<>();
 
         try {
-            fileReader = new FileReader(csvFile);
-            codeModels =  new Gson().fromJson(fileReader, CodeModel[].class);
-
-            for(CodeModel codeModel : codeModels) {
+            for(CodeModel codeModel : getJsonData(jsonFile)) {
                 try {
-                    stringBuilder = new StringBuilder();
+                    StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append("public class ");
                     codeModel.result = codeModel.result.replace("['", "").replace("']", "");
                     stringBuilder.append(codeModel.result);
@@ -91,8 +95,8 @@ public class Main {
                     stringBuilder.append(codeModel.code);
                     stringBuilder.append("\n}");
 
-                    changeNameMethod = new ChangeNameMethod(stringBuilder.toString(), codeModel.result);
-                    arrayList = hashMap.get(codeModel.result);
+                    ChangeNameMethod changeNameMethod = new ChangeNameMethod(stringBuilder.toString(), codeModel.result);
+                    ArrayList<String> arrayList = hashMap.get(codeModel.result);
                     if (arrayList == null) {
                         arrayList = new ArrayList<>();
                         hashMap.put(codeModel.result, arrayList);
@@ -119,6 +123,30 @@ public class Main {
         return hashMap;
     }
 
+    private static void processMethodsAndRemoveLines(String[] args) {
+        String pathJson = args[0];
+        String pathSave = args[1];
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberThreads);
+        LinkedList<RemoveLines> linkedList = new LinkedList<>();
+        HashMap<String, LinkedList<String>> hashMap = new HashMap<>();
+
+        try {
+            for(CodeModel codeModel : getJsonData(pathJson)) {
+                RemoveLines removeLines = new RemoveLines(codeModel.code, codeModel.result);
+                linkedList.add(removeLines);
+            }
+
+            for(Future<Pair<String, LinkedList<String>>> aux : threadPoolExecutor.invokeAll(linkedList)) {
+                Pair<String, LinkedList<String>> pair = aux.get();
+                hashMap.put(pair.getValue0(), pair.getValue1());
+            }
+
+            saveInFile(pathSave, createJson(hashMap));
+        } catch (FileNotFoundException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         StaticJavaParser.getConfiguration().setAttributeComments(false);
         int type = Integer.parseInt(args[0]);
@@ -134,6 +162,9 @@ public class Main {
             case 2:
                 HashMap<String, ArrayList<String>> hashMap = processCsvAndChangeMethodName(newArgs, false);
                 new CreateRepositorie(hashMap, newArgs[1]).process();
+                break;
+            case 3:
+                processMethodsAndRemoveLines(newArgs);
                 break;
             default:
                 System.out.println("Error in type described, must be 0 in 1");

@@ -1,4 +1,4 @@
-package plus;
+package plus.json_models;
 
 public class CodeModel {
     public String result;
