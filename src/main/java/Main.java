@@ -1,11 +1,8 @@
 import com.github.javaparser.StaticJavaParser;
 import com.google.gson.Gson;
-import com.sun.tools.javac.jvm.Code;
 import org.javatuples.Pair;
-import plus.ChangeNameMethod;
-import plus.RemoveLines;
+import plus.*;
 import plus.json_models.CodeModel;
-import plus.CreateRepositorie;
 import pre_process.FileLister;
 import process.FileProcess;
 
@@ -22,8 +19,6 @@ import static utils.Utils.saveInFile;
 public class Main {
     private static final ArrayList<String> algorithms = new ArrayList<>();
     private static char[] animationChars = new char[]{'|', '/', '-', '\\'};
-
-    private static int numberThreads = 12 * 3;
 
     public static String createJson(Object element) {
         Gson gson = new Gson();
@@ -125,21 +120,34 @@ public class Main {
     private static void processMethodsAndRemoveLines(String[] args) {
         String pathJson = args[0];
         String pathSave = args[1];
+        int numberThreads = 12 * 300;
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberThreads);
-        LinkedList<RemoveLines> linkedList = new LinkedList<>();
+        LinkedList<Remover> linkedList = new LinkedList<>();
         HashMap<String, LinkedList<String>> hashMap = new HashMap<>();
 
         try {
-            for(CodeModel codeModel : getJsonData(pathJson)) {
-                RemoveLines removeLines = new RemoveLines(codeModel.code, codeModel.result);
-                linkedList.add(removeLines);
+            CodeModel[] codeModels = getJsonData(pathJson);
+            Remover.setAllAmount(codeModels.length);
+            for(CodeModel codeModel : codeModels) {
+                RemoveBlocks remove = new RemoveBlocks(codeModel.code, codeModel.result);
+                linkedList.add(remove);
             }
 
-            for(Future<Pair<String, LinkedList<String>>> aux : threadPoolExecutor.invokeAll(linkedList)) {
-                Pair<String, LinkedList<String>> pair = aux.get();
-                hashMap.put(pair.getValue0(), pair.getValue1());
+            List<Future<Pair<String, LinkedList<String>>>> list = threadPoolExecutor.invokeAll(linkedList);
+            while (!threadPoolExecutor.isTerminated()) {
+                System.out.println("Waiting\n");
             }
 
+            for(Future<Pair<String, LinkedList<String>>> future : list) {
+                Pair<String, LinkedList<String>> pair = future.get();
+                LinkedList<String> auxLinkedList = hashMap.get(pair.getValue0());
+                if(auxLinkedList == null) {
+                    hashMap.put(pair.getValue0(), pair.getValue1());
+                }
+                else { auxLinkedList.addAll(pair.getValue1()); }
+            }
+
+            System.out.println("Save json");
             saveInFile(pathSave, createJson(hashMap));
         } catch (FileNotFoundException | InterruptedException | ExecutionException e) {
             e.printStackTrace();

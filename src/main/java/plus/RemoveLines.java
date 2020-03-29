@@ -1,40 +1,40 @@
 package plus;
 
+import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
-import org.javatuples.Pair;
 
-import java.util.LinkedList;
-import java.util.concurrent.Callable;
 
-public class RemoveLines implements Callable<Pair<String, LinkedList<String>>> {
-    private LinkedList<String> arrayList = null;
-    private String code;
-    private String algorithmName;
+public class RemoveLines extends Remover {
 
-    public RemoveLines(String code, String algorithmName) {
-        this.code= code;
-        this.algorithmName = algorithmName;
-    }
-
-    private void process() {
-        String[] lines = this.code.split("\\r?\\n");
-        String momentCode;
-        System.out.println("Original Code: ");
-        System.out.println("\t\t" + code);
-        for(String line : lines) {
-            momentCode = code.replace(line, "");
-            System.out.println("Removed Code: ");
-            System.out.println("\t\t" + momentCode);
-            StaticJavaParser.parse(momentCode);
-        }
+    public RemoveLines(String theCode, String algorithmName) {
+        super(theCode, algorithmName);
     }
 
     @Override
-    public Pair<String, LinkedList<String>> call() {
-        if(arrayList == null) {
-            this.process();
-        }
+    void remove(String code) {
+        String[] lines = code.split("\\r?\\n");
+        String momentCode;
 
-        return new Pair<>(this.algorithmName, arrayList);
+        for(String line : lines) {
+            System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + super.animationChars[time] + "\r");
+            super.time += 1;
+            super.time %= 4;
+
+            momentCode = code.replace(line + "\n", "");
+
+            try {
+                StaticJavaParser.parse("public class Test {\n" + momentCode + "\n}\n");
+            }
+            catch (ParseProblemException e) {
+                continue;
+            }
+
+            super.linkedList.add(momentCode);
+            try {
+                remove(momentCode);
+            }
+            catch (StackOverflowError ignored) {
+            }
+        }
     }
 }
