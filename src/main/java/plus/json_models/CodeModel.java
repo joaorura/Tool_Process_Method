@@ -11,4 +11,8 @@ public class CodeModel {
                 ", code='" + code + '\'' +
                 '}';
     }
+
+    public void rectify() {
+        this.code = this.code.replace("['", "").replace("']", "");
+    }
 }

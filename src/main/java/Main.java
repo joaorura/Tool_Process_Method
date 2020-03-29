@@ -120,7 +120,7 @@ public class Main {
     private static void processMethodsAndRemoveLines(String[] args) {
         String pathJson = args[0];
         String pathSave = args[1];
-        int numberThreads = 12 * 300;
+        int numberThreads = 1000;
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberThreads);
         LinkedList<Remover> linkedList = new LinkedList<>();
         HashMap<String, LinkedList<String>> hashMap = new HashMap<>();
@@ -129,12 +129,14 @@ public class Main {
             CodeModel[] codeModels = getJsonData(pathJson);
             Remover.setAllAmount(codeModels.length);
             for(CodeModel codeModel : codeModels) {
+                codeModel.rectify();
                 RemoveBlocks remove = new RemoveBlocks(codeModel.code, codeModel.result);
+                remove.call();
                 linkedList.add(remove);
             }
 
             List<Future<Pair<String, LinkedList<String>>>> list = threadPoolExecutor.invokeAll(linkedList);
-            while (!threadPoolExecutor.isTerminated()) {
+            while (threadPoolExecutor.isTerminated()) {
                 System.out.println("Waiting\n");
             }
 
@@ -147,10 +149,12 @@ public class Main {
                 else { auxLinkedList.addAll(pair.getValue1()); }
             }
 
-            System.out.println("Save json");
+            System.out.println("Json Saved");
             saveInFile(pathSave, createJson(hashMap));
         } catch (FileNotFoundException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
+        } finally {
+            threadPoolExecutor.shutdown();
         }
     }
 
@@ -177,5 +181,6 @@ public class Main {
                 System.out.println("Error in type described, must be 0 in 1");
         }
 
+        System.out.println("End of Exectuion");
     }
 }
