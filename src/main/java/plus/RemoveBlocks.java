@@ -15,13 +15,15 @@ public class RemoveBlocks extends Remover {
 
     @Override
     void remove(String code) {
-        if(code.equals("") || super.time >= super.limit) { return; }
+        if(code.equals("")) { return; }
 
         try {
             System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + Utils.animationChars[time % 4] + "\r");
+
+            if(super.time >= super.limit) { return; }
+
             CompilationUnit compilationUnitCode = StaticJavaParser.parse(code);
             compilationUnitCode.findAll(Statement.class).forEach(c -> {
-                super.time += 1;
 
                 if(c.getClass().equals(BlockStmt.class)) { return; }
                 CompilationUnit compilationUnitNewCode = compilationUnitCode.clone();
@@ -30,10 +32,9 @@ public class RemoveBlocks extends Remover {
                 });
                 String newCode = compilationUnitNewCode.toString();
                 StaticJavaParser.parse(newCode);
+                super.time += 1;
                 this.linkedList.add(newCode);
-                try {
-                    remove(newCode);
-                }
+                try { remove(newCode); }
                 catch (StackOverflowError ignored) { }
             });
         }
