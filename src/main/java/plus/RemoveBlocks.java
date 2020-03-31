@@ -5,21 +5,22 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import utils.Utils;
 
-import java.util.LinkedList;
 
 public class RemoveBlocks extends Remover {
-    public RemoveBlocks(String theCode, String algorithmName) {
-        super(theCode, algorithmName);
+    public RemoveBlocks(String algorithmName, String theCode, int limit) {
+        super(algorithmName, theCode, limit);
     }
 
     @Override
     void remove(String code) {
+        if(code.equals("") || super.time >= super.limit) { return; }
+
         try {
-            super.time += 1;
-            super.time %= 4;
-            System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + super.animationChars[time] + "\r");
+            System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + Utils.animationChars[time % 4] + "\r");
             CompilationUnit compilationUnitCode = StaticJavaParser.parse(code);
+            super.time += 1;
             compilationUnitCode.findAll(Statement.class).forEach(c -> {
                 if(c.getClass().equals(BlockStmt.class)) { return; }
                 CompilationUnit compilationUnitNewCode = compilationUnitCode.clone();
@@ -29,7 +30,9 @@ public class RemoveBlocks extends Remover {
                 String newCode = compilationUnitNewCode.toString();
                 StaticJavaParser.parse(newCode);
                 this.linkedList.add(newCode);
-                try { remove(newCode); }
+                try {
+                    remove(newCode);
+                }
                 catch (StackOverflowError ignored) { }
             });
         }

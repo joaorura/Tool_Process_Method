@@ -2,12 +2,12 @@ package plus;
 
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
+import utils.Utils;
 
 
 public class RemoveLines extends Remover {
-
-    public RemoveLines(String theCode, String algorithmName) {
-        super(theCode, algorithmName);
+    public RemoveLines(String algorithmName, String theCode, int limit) {
+        super(algorithmName, theCode, limit);
     }
 
     @Override
@@ -16,7 +16,7 @@ public class RemoveLines extends Remover {
         String momentCode;
 
         for(String line : lines) {
-            System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + super.animationChars[time] + "\r");
+            System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + Utils.animationChars[time] + "\r");
             super.time += 1;
             super.time %= 4;
 

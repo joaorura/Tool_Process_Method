@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class Utils {
+    public static char[] animationChars = new char[]{'|', '/', '-', '\\'};
+
     public static void saveInFile(String thePath, String text)  {
         Path path = Paths.get(thePath);
 

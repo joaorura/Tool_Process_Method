@@ -1,5 +1,6 @@
 import com.github.javaparser.StaticJavaParser;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.javatuples.Pair;
 import plus.*;
 import plus.json_models.CodeModel;
@@ -7,11 +8,9 @@ import pre_process.FileLister;
 import process.FileProcess;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 
 import static utils.Utils.saveInFile;
 
@@ -65,31 +64,30 @@ public class Main {
         }
     }
 
-    private static CodeModel[] getJsonData(String jsonFile) throws FileNotFoundException {
+    private static <T> T getJsonData(String jsonFile, Type theClass) throws FileNotFoundException {
         FileReader fileReader = new FileReader(jsonFile);
-        return new Gson().fromJson(fileReader, CodeModel[].class);
+
+        return new Gson().fromJson(fileReader, theClass);
     }
 
-    public static HashMap<String, ArrayList<String>> processCsvAndChangeMethodName(String[] args, boolean jsonSave) {
+    public static void processJsonAndChangeMethodName(String[] args, boolean jsonSave) {
         String jsonFile = args[0];
         String pathToSave = args[1];
         int count = 0, countError = 0;
         HashMap<String, ArrayList<String>> hashMap = new HashMap<>();
 
         try {
-            for(CodeModel codeModel : getJsonData(jsonFile)) {
+            Type type = new TypeToken<CodeModel[]>(){}.getType();
+            for(CodeModel codeModel : Main.<CodeModel[]>getJsonData(jsonFile, type)) {
                 try {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append("public class ");
                     codeModel.result = codeModel.result.replace("['", "").replace("']", "");
-                    stringBuilder.append(codeModel.result);
-                    stringBuilder.append(count);
-                    stringBuilder.append("Class");
-                    stringBuilder.append(" {\n");
-                    stringBuilder.append(codeModel.code);
-                    stringBuilder.append("\n}");
 
-                    ChangeNameMethod changeNameMethod = new ChangeNameMethod(stringBuilder.toString(), codeModel.result);
+                    String stringBuilder = "public class " +
+                            codeModel.result +
+                            " {\n" +
+                            codeModel.code +
+                            "\n}";
+                    ChangeNameMethod changeNameMethod = new ChangeNameMethod(stringBuilder, codeModel.result);
                     ArrayList<String> arrayList = hashMap.get(codeModel.result);
                     if (arrayList == null) {
                         arrayList = new ArrayList<>();
@@ -114,47 +112,78 @@ public class Main {
         }
 
         System.out.println("Percent of Error: " + ((float) countError/count) + "%");
-        return hashMap;
     }
 
     private static void processMethodsAndRemoveLines(String[] args) {
         String pathJson = args[0];
         String pathSave = args[1];
-        int numberThreads = 1000;
-        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberThreads);
+        int numberThreads = 24, size = 0, amount = Integer.parseInt(args[2]);
         LinkedList<Remover> linkedList = new LinkedList<>();
         HashMap<String, LinkedList<String>> hashMap = new HashMap<>();
 
+        Map<String, List<String>> mapInput;
+        Type type = new TypeToken<Map<String,  List<String>>>(){}.getType();
         try {
-            CodeModel[] codeModels = getJsonData(pathJson);
-            Remover.setAllAmount(codeModels.length);
-            for(CodeModel codeModel : codeModels) {
-                codeModel.rectify();
-                RemoveBlocks remove = new RemoveBlocks(codeModel.code, codeModel.result);
-                remove.call();
+            mapInput = getJsonData(pathJson, type);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+
+
+        for(Map.Entry<String, List<String>> entry : mapInput.entrySet()) {
+            size += entry.getValue().size();
+            for(String code : entry.getValue()) {
+                RemoveBlocks remove = new RemoveBlocks(entry.getKey(), code, amount);
                 linkedList.add(remove);
             }
+        }
 
-            List<Future<Pair<String, LinkedList<String>>>> list = threadPoolExecutor.invokeAll(linkedList);
-            while (threadPoolExecutor.isTerminated()) {
-                System.out.println("Waiting\n");
-            }
+        RemoveBlocks.setAllAmount(size);
+        RemoveBlocks.resetAmount();
 
-            for(Future<Pair<String, LinkedList<String>>> future : list) {
-                Pair<String, LinkedList<String>> pair = future.get();
-                LinkedList<String> auxLinkedList = hashMap.get(pair.getValue0());
-                if(auxLinkedList == null) {
-                    hashMap.put(pair.getValue0(), pair.getValue1());
-                }
-                else { auxLinkedList.addAll(pair.getValue1()); }
-            }
-
-            System.out.println("Json Saved");
-            saveInFile(pathSave, createJson(hashMap));
-        } catch (FileNotFoundException | InterruptedException | ExecutionException e) {
+        ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberThreads);
+        List<Future<Pair<String, LinkedList<String>>>> list;
+        try {
+            list = executorService.invokeAll(linkedList);
+        }
+        catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            threadPoolExecutor.shutdown();
+            return;
+        }
+
+
+        for(Future<Pair<String, LinkedList<String>>> future : list) {
+            Pair<String, LinkedList<String>> pair;
+            try { pair = future.get(); }
+            catch (InterruptedException | ExecutionException | CancellationException e) {
+                continue;
+            }
+
+            LinkedList<String> auxLinkedList = hashMap.get(pair.getValue0());
+            if(auxLinkedList == null) { hashMap.put(pair.getValue0(), pair.getValue1()); }
+            else {
+                for (String aux : pair.getValue1()) {
+                    if (!auxLinkedList.contains(aux)) { auxLinkedList.add(aux); }
+                }
+            }
+        }
+
+        executorService.shutdown();
+        System.out.println("Process end!!");
+        System.out.println("Json Saved ");
+        saveInFile(pathSave +  ".json", createJson(hashMap));
+
+    }
+
+    private static Map<String, List<String>> getDataJsonMap(String newArg) {
+        Type type = new TypeToken<Map<String,  List<String>>>(){}.getType();
+        try {
+            return getJsonData(newArg, type);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -168,11 +197,12 @@ public class Main {
                 processFileAndGetMethods(newArgs);
                 break;
             case 1:
-                processCsvAndChangeMethodName(newArgs, true);
+                processJsonAndChangeMethodName(newArgs, true);
                 break;
             case 2:
-                HashMap<String, ArrayList<String>> hashMap = processCsvAndChangeMethodName(newArgs, false);
-                new CreateRepositorie(hashMap, newArgs[1]).process();
+
+                Map<String, List<String>> map = getDataJsonMap(newArgs[0]);
+                new CreateRepositorie(map, newArgs[1]).process();
                 break;
             case 3:
                 processMethodsAndRemoveLines(newArgs);
@@ -183,4 +213,6 @@ public class Main {
 
         System.out.println("End of Exectuion");
     }
+
+
 }

@@ -13,6 +13,6 @@ public class CodeModel {
     }
 
     public void rectify() {
-        this.code = this.code.replace("['", "").replace("']", "");
+        this.result = this.result.replace("['", "").replace("']", "");
     }
 }

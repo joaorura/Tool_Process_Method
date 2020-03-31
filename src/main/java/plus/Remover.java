@@ -11,12 +11,12 @@ public abstract class Remover implements Callable<Pair<String, LinkedList<String
     LinkedList<String> linkedList = null;
     String theCode;
     String algorithmName;
-    char[] animationChars = new char[]{'|', '/', '-', '\\'};
-    int time = 0;
+    int time = 0, limit;
 
-    public Remover(String theCode, String algorithmName) {
+    public Remover(String algorithmName, String theCode, int limit) {
         this.theCode = theCode;
         this.algorithmName = algorithmName;
+        this.limit = limit;
     }
 
     abstract void remove(String code);
@@ -25,7 +25,7 @@ public abstract class Remover implements Callable<Pair<String, LinkedList<String
     public Pair<String, LinkedList<String>> call() {
         if(linkedList == null) {
             linkedList = new LinkedList<>();
-            remove("public class Test {\n" + this.theCode + "\n}\n");
+            remove(this.theCode);
         }
 
         amount += 1;
@@ -35,4 +35,5 @@ public abstract class Remover implements Callable<Pair<String, LinkedList<String
     public static void setAllAmount(int allAmount) {
         Remover.allAmount = allAmount;
     }
+    public static void resetAmount() { Remover.amount = 0; }
 }
