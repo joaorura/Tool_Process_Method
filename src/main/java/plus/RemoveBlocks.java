@@ -20,8 +20,9 @@ public class RemoveBlocks extends Remover {
         try {
             System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + Utils.animationChars[time % 4] + "\r");
             CompilationUnit compilationUnitCode = StaticJavaParser.parse(code);
-            super.time += 1;
             compilationUnitCode.findAll(Statement.class).forEach(c -> {
+                super.time += 1;
+
                 if(c.getClass().equals(BlockStmt.class)) { return; }
                 CompilationUnit compilationUnitNewCode = compilationUnitCode.clone();
                 compilationUnitNewCode.findAll(c.getClass()).forEach(b -> {
