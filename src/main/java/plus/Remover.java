@@ -25,7 +25,8 @@ public abstract class Remover implements Callable<Pair<String, LinkedList<String
     public Pair<String, LinkedList<String>> call() {
         if(linkedList == null) {
             linkedList = new LinkedList<>();
-            remove(this.theCode);
+            linkedList.add(theCode);
+            remove(theCode);
         }
 
         amount += 1;
