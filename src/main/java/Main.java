@@ -1,5 +1,6 @@
 import com.github.javaparser.StaticJavaParser;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.javatuples.Pair;
 import plus.*;
@@ -20,7 +21,7 @@ public class Main {
     private static char[] animationChars = new char[]{'|', '/', '-', '\\'};
 
     public static String createJson(Object element) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(element);
     }
 
@@ -104,7 +105,7 @@ public class Main {
             }
 
             if(jsonSave) {
-                saveInFile(pathToSave, new Gson().toJson(hashMap));
+                saveInFile(pathToSave, createJson(hashMap));
             }
         }
         catch (IOException e) {
@@ -173,7 +174,7 @@ public class Main {
         executorService.shutdown();
         System.out.println("Process end!!");
         System.out.println("Json Saved ");
-        saveInFile(pathSave +  ".json", createJson(hashMap));
+        saveInFile(pathSave, createJson(hashMap));
 
     }
 
@@ -200,7 +201,6 @@ public class Main {
                 processJsonAndChangeMethodName(newArgs, true);
                 break;
             case 2:
-
                 Map<String, List<String>> map = getDataJsonMap(newArgs[0]);
                 new CreateRepositorie(map, newArgs[1]).process();
                 break;
