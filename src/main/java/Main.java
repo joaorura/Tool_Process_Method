@@ -1,29 +1,23 @@
 import com.github.javaparser.StaticJavaParser;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.javatuples.Pair;
 import plus.*;
 import plus.json_models.CodeModel;
 import pre_process.FileLister;
 import process.FileProcess;
+import utils.Utils;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static utils.Utils.saveInFile;
+import static utils.Utils.*;
 
 
 public class Main {
     private static final ArrayList<String> algorithms = new ArrayList<>();
     private static char[] animationChars = new char[]{'|', '/', '-', '\\'};
-
-    public static String createJson(Object element) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(element);
-    }
 
     public static void processFiles(String path) {
         FileLister fileLister = new FileLister(path, new String[]{".java"}, true);
@@ -65,37 +59,35 @@ public class Main {
         }
     }
 
-    private static <T> T getJsonData(String jsonFile, Type theClass) throws FileNotFoundException {
-        FileReader fileReader = new FileReader(jsonFile);
+    public static void changeNameMethod(HashMap<String, LinkedList<String>> hashMap, String result, String code) {
+        result = result.replace("['", "").replace("']", "");
 
-        return new Gson().fromJson(fileReader, theClass);
+        String stringBuilder = "public class " +
+                result +
+                " {\n" +
+                code +
+                "\n}";
+        ChangeNameMethod changeNameMethod = new ChangeNameMethod(stringBuilder, result);
+        LinkedList<String> linkedList = hashMap.get(result);
+        if (linkedList == null) {
+            linkedList = new LinkedList<>();
+            hashMap.put(result, linkedList);
+        } else {
+            linkedList.add(changeNameMethod.getNewCode());
+        }
     }
 
     public static void processJsonAndChangeMethodName(String[] args, boolean jsonSave) {
         String jsonFile = args[0];
         String pathToSave = args[1];
         int count = 0, countError = 0;
-        HashMap<String, ArrayList<String>> hashMap = new HashMap<>();
+        HashMap<String, LinkedList<String>> hashMap = new HashMap<>();
 
         try {
-            Type type = new TypeToken<CodeModel[]>(){}.getType();
-            for(CodeModel codeModel : Main.<CodeModel[]>getJsonData(jsonFile, type)) {
+            Type type = new TypeToken<List<CodeModel>>(){}.getType();
+            for(CodeModel codeModel : Utils.<CodeModel[]>getJsonData(jsonFile, type)) {
                 try {
-                    codeModel.result = codeModel.result.replace("['", "").replace("']", "");
-
-                    String stringBuilder = "public class " +
-                            codeModel.result +
-                            " {\n" +
-                            codeModel.code +
-                            "\n}";
-                    ChangeNameMethod changeNameMethod = new ChangeNameMethod(stringBuilder, codeModel.result);
-                    ArrayList<String> arrayList = hashMap.get(codeModel.result);
-                    if (arrayList == null) {
-                        arrayList = new ArrayList<>();
-                        hashMap.put(codeModel.result, arrayList);
-                    } else {
-                        arrayList.add(changeNameMethod.getNewCode());
-                    }
+                    changeNameMethod(hashMap, codeModel.result, codeModel.code);
                 }
                 catch (Exception e) {
                     countError += 1;

@@ -1,7 +1,13 @@
 package utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,5 +44,17 @@ public class Utils {
         catch (IOException e) {
             throw new RuntimeException("Não está sendo possível escrever no arquivo criado.");
         }
+    }
+
+    public static <T> T getJsonData(String jsonFile, Type theClass) throws FileNotFoundException {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        FileReader fileReader = new FileReader(jsonFile);
+        return gson.fromJson(fileReader, theClass);
+    }
+
+    public static <T> String  createJson(T element) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(element);
     }
 }
