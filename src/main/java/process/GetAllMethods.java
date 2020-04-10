@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FilterCode {
+public class GetAllMethods {
     private CompilationUnit compilationUnit;
     private HashMap<String, ArrayList<String>> mapAlgorithm = new HashMap<>();
     private HashMap<String, String> mapMethods = new HashMap<>();
@@ -39,7 +39,7 @@ public class FilterCode {
         }
     }
 
-    public FilterCode(String text) {
+    public GetAllMethods(String text) {
         this.compilationUnit = StaticJavaParser.parse(String.valueOf(text));
     }
 

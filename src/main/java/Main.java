@@ -5,6 +5,8 @@ import plus.*;
 import plus.json_models.CodeModel;
 import pre_process.FileLister;
 import process.FileProcess;
+import process.FilterAndGetMethods;
+import process.GetAllMethods;
 import utils.Utils;
 
 import java.io.*;
@@ -26,7 +28,9 @@ public class Main {
         int count = 0;
         for(int i = 0; i < files.size(); i++) {
             try {
-                new FileProcess(files.get(i), algorithms).process();
+                String str = new FileProcess(files.get(i)).process();
+                GetAllMethods getAllMethods = new GetAllMethods(str);
+                algorithms.addAll(getAllMethods.getAlgorithms());
             }
             catch (RuntimeException e) {
                 System.out.println(e.getMessage());
@@ -180,6 +184,15 @@ public class Main {
         }
     }
 
+
+    private static void processFilterAndGetMethods(String[] args) {
+        String[] filters = new String[] { "search", "filter", "sort" };
+        FilterAndGetMethods filterAndGetMethods = new FilterAndGetMethods(args[0], filters, args[1], Integer.parseInt(args[2]));
+        filterAndGetMethods.process();
+
+        saveInFile(args[3], createJson(filterAndGetMethods.examples));
+    }
+
     public static void main(String[] args) {
         StaticJavaParser.getConfiguration().setAttributeComments(false);
         int type = Integer.parseInt(args[0]);
@@ -199,12 +212,16 @@ public class Main {
             case 3:
                 processMethodsAndRemoveLines(newArgs);
                 break;
+            case 4:
+                processFilterAndGetMethods(newArgs);
+
             default:
                 System.out.println("Error in type described, must be 0 in 1");
         }
 
         System.out.println("End of Exectuion");
     }
+
 
 
 }

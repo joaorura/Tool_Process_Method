@@ -10,17 +10,13 @@ import java.util.ArrayList;
 
 public class FileProcess {
     private File file;
-    private ArrayList<String> algorithms;
-    private boolean process = false;
-    public FileProcess(File file, ArrayList<String> algorithms) {
+    private String text = null;
+    public FileProcess(File file) {
         this.file = file;
-        this.algorithms = algorithms;
     }
 
-    public void process() {
-        if(!this.process) {
-            this.process = true;
-
+    public String process() {
+        if(this.text == null) {
             ProcessFile theProcessFile = new ProcessFile(this.file);
             String strFile;
             try {
@@ -31,12 +27,9 @@ public class FileProcess {
                 throw new RuntimeException("Error ao ler arquivo e converter para UTF-8");
             }
 
-            try {
-                FilterCode filterCode = new FilterCode(strFile);
-                this.algorithms.addAll(filterCode.getAlgorithms());
-            } catch (Exception e) {
-                throw  new RuntimeException("Error processing file: " + this.file + "\n");
-            }
+            this.text = strFile;
         }
+
+        return this.text;
     }
 }
