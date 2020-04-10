@@ -47,7 +47,7 @@ public class FilterAndGetMethods {
                 String theCode = "public class Test {\n" + arrayList.get(i) + "\n}\n";
                 CompilationUnit compilationUnit = StaticJavaParser.parse(theCode);
                 compilationUnit.findFirst(MethodDeclaration.class).get().setName(name);
-                theCode = compilationUnit.toString().substring(21, arrayList.size() - 3);
+                theCode = compilationUnit.toString().substring(22, arrayList.size() - 2);
                 bufferSaveCode.add(new CodeModel(name, theCode));
             }
         }
