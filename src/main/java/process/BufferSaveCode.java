@@ -33,15 +33,20 @@ public class BufferSaveCode extends LinkedList<CodeModel> {
         count += 1;
     }
 
+    public void process() {
+        for(int i = 0; i <= this.size; i++) {
+            CodeModel element = super.get(i);
+            send(element);
+        }
+
+        super.clear();
+    }
+
+
     @Override
     public boolean add(CodeModel codeModel) {
         if(super.size() == this.size && super.add(codeModel)) {
-            for(int i = 0; i <= this.size; i++) {
-                CodeModel element = super.get(i);
-                send(element);
-            }
-
-            super.clear();
+            process();
             return true;
         }
         else {

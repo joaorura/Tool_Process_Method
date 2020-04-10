@@ -107,6 +107,7 @@ public class FilterAndGetMethods {
             e.printStackTrace();
         }
 
+        this.bufferSaveCode.process();
         executorService.shutdown();
     }
 }
