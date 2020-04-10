@@ -2,6 +2,7 @@ package process;
 
 import plus.json_models.CodeModel;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -18,6 +19,7 @@ public class BufferSaveCode extends LinkedList<CodeModel> {
     public BufferSaveCode(int size, String path, ArrayList<String> examples) {
         this.size = size;
         this.path = path;
+        new File(path).mkdirs();
         this.examples = examples;
     }
 

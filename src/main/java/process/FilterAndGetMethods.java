@@ -18,6 +18,8 @@ import static utils.Utils.createJson;
 
 public class FilterAndGetMethods {
     private int count = 0;
+    private int size;
+
     private String pathFile;
     private String[] filters;
 
@@ -34,15 +36,11 @@ public class FilterAndGetMethods {
 
     private class Run implements Callable<Void> {
         private String str;
-        private int size;
 
         public Run(String str) {
             this.str = str;
         }
 
-        public void setSize(int size) {
-            this.size = size;
-        }
 
         private void setAllNameMethod(String name, ArrayList<String> arrayList) {
             for(int i = 0; i <= arrayList.size(); i++) {
@@ -71,7 +69,7 @@ public class FilterAndGetMethods {
                 }
             }
 
-            float percent = ((float) count /  this.size) * 100;
+            float percent = ((float) count /  size) * 100;
             System.out.print("Processing: " + percent + "% " + animationChars[count] + "\r");
             count += 1;
             count %= 4;
@@ -91,6 +89,7 @@ public class FilterAndGetMethods {
         ArrayList<File> files = fileLister.getFiles();
         ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
         LinkedList<Run> linkedList = new LinkedList<>();
+        this.size = files.size();
 
         for (File file : files) {
             try {
