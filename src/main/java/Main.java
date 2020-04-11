@@ -22,10 +22,12 @@ public class Main {
     private static char[] animationChars = new char[]{'|', '/', '-', '\\'};
 
     public static void processFiles(String path) {
-        FileLister fileLister = new FileLister(path, new String[]{".java"}, true);
-        ArrayList<File> files = fileLister.getFiles();
+        LinkedList<File> files = new LinkedList<>();
+        FileLister fileLister = new FileLister(path, new String[]{".java"}, files, true);
+        fileLister.processFiles();
         float percent;
         int count = 0;
+
         for(int i = 0; i < files.size(); i++) {
             try {
                 String str = new FileProcess(files.get(i)).process();
@@ -187,7 +189,7 @@ public class Main {
 
     private static void processFilterAndGetMethods(String[] args) {
         String[] filters = new String[] { "search", "filter", "sort" };
-        FilterAndGetMethods filterAndGetMethods = new FilterAndGetMethods(args[0], filters, args[1], Integer.parseInt(args[2]));
+        FilterAndGetMethods filterAndGetMethods = new FilterAndGetMethods(args[0], filters, args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]));
         filterAndGetMethods.process();
 
         saveInFile(args[3], createJson(filterAndGetMethods.examples));

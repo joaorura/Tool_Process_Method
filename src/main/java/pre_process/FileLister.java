@@ -2,22 +2,27 @@ package pre_process;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FileLister {
     private String dir;
-    private String[] filters;
-    private boolean recursive;
-    private ArrayList<File> files = new ArrayList<>();
 
-    public FileLister(String dir, String[] filters, boolean recursive) {
+    private String[] filters;
+
+    private boolean recursive;
+
+    public List<File> files;
+
+    public FileLister(String dir, String[] filters, List<File> files, boolean recursive) {
         this.dir = dir;
         this.filters = filters;
         this.recursive = recursive;
+        this.files = files;
     }
 
     private boolean checkFilters(File file) {
         for (String aux : this.filters) {
-            if (!file.toString().contains(aux)) {
+            if (!file.toString().endsWith(aux)) {
                 return false;
             }
         }
@@ -49,11 +54,7 @@ public class FileLister {
         }
     }
 
-    public ArrayList<File> getFiles() {
-        if (files.size() == 0) {
-            this.listFiles();
-        }
-
-        return files;
+    public void processFiles() {
+        this.listFiles();
     }
 }
