@@ -1,6 +1,8 @@
-package process;
+package get_methods;
 
 import pre_process.FileLister;
+import utils.BufferFile;
+import utils.BufferSaveCode;
 
 import java.util.ArrayList;
 
@@ -17,16 +19,21 @@ public class FilterAndGetMethods {
         this.pathFile = pathFile;
 
         this.bufferSaveCode = new BufferSaveCode(size, path, examples);
-        this.bufferFile = new BufferFile(size, amountThreads, filters, this.bufferSaveCode);
+        RunProcessAndFilter.setAll(filters, this.bufferSaveCode);
+
+        this.bufferFile = new BufferFile(size, RunProcessAndFilter.class, amountThreads, this.bufferSaveCode);
     }
 
 
 
     public void process() {
         FileLister fileLister = new FileLister(this.pathFile, new String[]{".java"}, this.bufferFile, true);
+        System.out.println("Executing");
         fileLister.processFiles();
-        bufferSaveCode.process();
+
+
         bufferFile.process();
+        bufferSaveCode.process();
 
         try {
             bufferFile.waitForExecution();

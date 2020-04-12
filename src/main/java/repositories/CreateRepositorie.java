@@ -1,24 +1,39 @@
-package plus;
+package repositories;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.google.gson.reflect.TypeToken;
+import interaction_user.InterfaceProcess;
 import utils.Utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.lang.reflect.Type;
 import java.util.*;
 
+import static utils.Utils.getJsonData;
 import static utils.Utils.saveInFile;
 
-public class CreateRepositorie {
+public class CreateRepositorie implements InterfaceProcess {
     private Map<String, List<String>> map;
     private File[] files;
     private int amount = 0, allAmount;
 
 
-    public CreateRepositorie(Map<String, List<String>> map, String pathToSave) {
-        this.map = map;
-        this.files = new File[]{new File(pathToSave + "\\my_test_dir"), new File(pathToSave + "\\my_val_dir"), new File(pathToSave + "\\my_train_dir")};
+    public CreateRepositorie(String pathRead, String pathToSave) throws FileNotFoundException {
+        Type type = new TypeToken<Map<String, List<String>>>(){}.getType();
+
+        this.map = getJsonData(pathRead, type);
+        this.files = new File[] {
+                new File(pathToSave + "\\my_test_dir"),
+                new File(pathToSave + "\\my_val_dir"),
+                new File(pathToSave + "\\my_train_dir")
+        };
+    }
+
+    public CreateRepositorie(String[] args) throws FileNotFoundException, IndexOutOfBoundsException {
+        this(args[0], args[1]);
     }
 
     private void saveFile(String code, String file) {
@@ -33,6 +48,7 @@ public class CreateRepositorie {
         amount += 1;
     }
 
+    @Override
     public void process() {
         int size, i;
         List<String> list;

@@ -1,29 +1,41 @@
-package plus;
+package incomplete_code;
 
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import org.javatuples.Pair;
 import utils.Utils;
 
+import java.util.LinkedList;
+import java.util.concurrent.Callable;
 
-public class RemoveBlocks extends Remover {
+
+public class RemoveBlocks implements Callable<Pair<String, LinkedList<String>>> {
+    private static int allAmount, amount = 0;
+    private int limit, time = 0;
+
+    private LinkedList<String> linkedList = null;
+    private String theCode;
+    private String algorithmName;
+
     public RemoveBlocks(String algorithmName, String theCode, int limit) {
-        super(algorithmName, theCode, limit);
+        this.theCode = theCode;
+        this.algorithmName = algorithmName;
+        this.limit = limit;
     }
 
-    @Override
     void remove(String code) {
         if(code.equals("")) { return; }
 
         try {
-            System.out.print("Processing: " + ((float) Remover.amount / Remover.allAmount) * 100 + "%" + " " + Utils.animationChars[time % 4] + "\r");
+            System.out.print("Processing: " + ((float) RemoveBlocks.amount / RemoveBlocks.allAmount) * 100 + "%" + " " + Utils.animationChars[time % 4] + "\r");
 
 
             CompilationUnit compilationUnitCode = StaticJavaParser.parse(code);
             compilationUnitCode.findAll(Statement.class).forEach(c -> {
-                if(super.time >= super.limit) { return; }
+                if(this.time >= this.limit) { return; }
 
                 if(c.getClass().equals(BlockStmt.class)) { return; }
                 CompilationUnit compilationUnitNewCode = compilationUnitCode.clone();
@@ -32,7 +44,7 @@ public class RemoveBlocks extends Remover {
                 });
                 String newCode = compilationUnitNewCode.toString();
                 StaticJavaParser.parse(newCode);
-                super.time += 1;
+                this.time += 1;
                 this.linkedList.add(newCode);
                 try { remove(newCode); }
                 catch (StackOverflowError ignored) { }
@@ -40,4 +52,21 @@ public class RemoveBlocks extends Remover {
         }
         catch (ParseProblemException ignored) {}
     }
+
+    @Override
+    public Pair<String, LinkedList<String>> call() {
+        if(linkedList == null) {
+            linkedList = new LinkedList<>();
+            linkedList.add(theCode);
+            remove(theCode);
+        }
+
+        amount += 1;
+        return new Pair<>(this.algorithmName, linkedList);
+    }
+
+    public static void setAllAmount(int allAmount) {
+        RemoveBlocks.allAmount = allAmount;
+    }
+    public static void resetAmount() { RemoveBlocks.amount = 0; }
 }

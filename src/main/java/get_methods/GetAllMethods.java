@@ -1,5 +1,6 @@
-package process;
+package get_methods;
 
+import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -34,28 +35,32 @@ public class GetAllMethods {
                     arrayList.add(strAux);
                 }
             }
-
-            super.visit(n, arg);
+            try { super.visit(n, arg); }
+            catch (Exception ignore) { }
         }
     }
 
-    public GetAllMethods(String text) {
+    public GetAllMethods(String text) throws ParseProblemException {
         this.compilationUnit = StaticJavaParser.parse(String.valueOf(text));
     }
 
-    public ArrayList<String> getAlgorithms() {
+    public ArrayList<String> getMethods() {
         if(this.answer == null) {
             this.answer = new ArrayList<>();
-            compilationUnit.findAll(MethodDeclaration.class).forEach(c -> {
-                String method = c.getName().toString();
-                String code = c.toString();
+            try {
+                compilationUnit.findAll(MethodDeclaration.class).forEach(c -> {
+                    String method = c.getName().toString();
+                    String code = c.toString();
 
-                this.mapMethods.put(method, code);
-                ArrayList<String> arrayList = new ArrayList<>();
-                this.mapAlgorithm.put(method, arrayList);
+                    this.mapMethods.put(method, code);
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    this.mapAlgorithm.put(method, arrayList);
 
-                c.accept(new MethodCallVisitor(arrayList), null);
-            });
+                    c.accept(new MethodCallVisitor(arrayList), null);
+                });
+            }
+            catch (Exception e) { return  this.answer; }
+
 
             for (Map.Entry<String, ArrayList<String>> pair : mapAlgorithm.entrySet()) {
                 StringBuilder stringBuilder = new StringBuilder();

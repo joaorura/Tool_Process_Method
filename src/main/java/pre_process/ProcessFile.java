@@ -7,15 +7,14 @@ import java.io.IOException;
 
 public class ProcessFile {
     private File file;
-    private String strFile;
-    private boolean process = false;
+    private String strFile = null;
 
     public ProcessFile(File file) {
         this.file = file;
     }
 
     public String getStringOfFile() throws IOException {
-        if(!this.process) {
+        if(strFile == null) {
             BufferedReader bf = new BufferedReader(new FileReader(this.file));
             String line = bf.readLine();
             StringBuilder text = new StringBuilder();

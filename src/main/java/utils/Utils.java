@@ -57,4 +57,23 @@ public class Utils {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(element);
     }
+
+    public static long maxMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory();
+        return (long) ((double) (totalMemory) / (1024 * 1024));
+    }
+
+    public static long usedMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        return (long) ((double) (totalMemory - freeMemory) / (1024 * 1024));
+    }
+
+    public static long freeMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        long freeMemory = runtime.freeMemory();
+        return (long) ((double) (freeMemory) / (1024 * 1024));
+    }
 }
