@@ -12,6 +12,8 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
 
     private ArrayList<String> examples;
 
+    private String nameOfClass;
+
     protected String path;
 
     public BufferSaveCode(int size, String path, ArrayList<String> examples) {
@@ -31,12 +33,16 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
         return this.path + "/" + nameOfClass + ".java";
     }
 
-    private void send(CodeModel element) {
-        String nameOfClass = getNameOfClass(element);
-        String newPath = getNewPath(nameOfClass);
-        String newCode = "public class " + nameOfClass + " {\n" +
-                element.code +
+    protected String getNewCode(String str) {
+        return "public class " + this.nameOfClass + " {\n" +
+                str +
                 "\n}\n";
+    }
+
+    private void send(CodeModel element) {
+        this.nameOfClass = getNameOfClass(element);
+        String newPath = getNewPath(this.nameOfClass);
+        String newCode = getNewCode(element.code);
 
         if(this.examples != null && !this.examples.contains(element.result)) {
             this.examples.add(element.result);

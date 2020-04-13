@@ -27,7 +27,6 @@ public class BufferFile extends ListBuffer<File> {
         if(! (runnableClass.equals(RunProcessAndFilter.class) ||
                 runnableClass.equals(RunProcessIncomplete.class) ||
                 runnableClass.equals(RunDivideInRepositories.class))) {
-            System.out.println("dasdasd");
             throw new RuntimeException("The action of RunnableClass its not implemented.");
         }
 
@@ -69,6 +68,7 @@ public class BufferFile extends ListBuffer<File> {
                 }
 
                 if(str != null && runnable != null) {
+                    this.threadPoolExecutor.execute(runnable);
                     this.threadPoolExecutor.execute(runnable);
                 }
             }

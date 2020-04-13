@@ -5,6 +5,7 @@ import interaction_user.InterfaceProcess;
 import utils.BufferFile;
 import utils.BufferSaveCode;
 
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static pre_process.FileLister.createFileLister;
 
@@ -15,7 +16,7 @@ public class PathCreateRepositories implements InterfaceProcess {
 
     private BufferFile bufferFile;
 
-    public PathCreateRepositories(int sizeOfBuffer, int numOfThreads, String pathRead, String pathWrite, String[] datasets, int[] percents) {
+    public PathCreateRepositories(int sizeOfBuffer, int numOfThreads, String pathRead, String pathWrite, String[] datasets, double[] percents) {
         this.pathRead = pathRead;
 
         this.bufferSaveCode = new BufferSaveCodeInRepositories(sizeOfBuffer, pathWrite, datasets, percents);
@@ -34,15 +35,15 @@ public class PathCreateRepositories implements InterfaceProcess {
         String[] datasets = args[4].split(", ");
 
         String[] parts = args[5].split(", ");
-        int[] percents = new int[parts.length];
+        double[] percents = new double[parts.length];
         for(int i = 0; i < parts.length; i++) {
-            percents[i] = parseInt(parts[i]);
+            percents[i] = parseDouble(parts[i]);
         }
 
         this.bufferSaveCode = new BufferSaveCodeInRepositories(sizeOfBuffer, pathWrite, datasets, percents);
         RunProcessIncomplete.setAll(bufferSaveCode);
 
-        this.bufferFile = new BufferFile(sizeOfBuffer, RunProcessIncomplete.class, numOfThreads, this.bufferSaveCode);
+        this.bufferFile = new BufferFile(sizeOfBuffer, RunDivideInRepositories.class, numOfThreads, this.bufferSaveCode);
     }
 
     @Override

@@ -8,7 +8,7 @@ public class CodeUtils {
     public static String removeFirstClass(String str, String name) throws  RuntimeException {
         str = str.replace("public class " + name + " {\n", "");
         str = str.substring(0, str.length() - 2);
-        return str;
+        return str.replaceAll("(^public class [A-Z]*[a-z]*[0-9]* \\{\n)|(}\n*$)", "");
     }
 
     public static String getNameOfClass(String str) throws RuntimeException {
