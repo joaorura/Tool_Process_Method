@@ -46,17 +46,21 @@ public class RemoveBlocks implements Callable<Pair<String, LinkedList<String>>> 
                 if(this.time >= this.limit) { break; }
                 try {
                     CompilationUnit compilationUnitNewCode = compilationUnitCode.clone();
-                    compilationUnitNewCode.findAll(c.getClass()).forEach(b -> {
-                        if(b.equals(c)) { b.remove(); }
-                    });
-
+                    List<T> theList = compilationUnitNewCode.findAll(theClass);
+                    for(T t : theList) {
+                        if(t.equals(c)) {
+                            t.remove();
+                            break;
+                        }
+                    }
                     String newCode = compilationUnitNewCode.toString();
-                    StaticJavaParser.parse(newCode);
                     this.time += 1;
                     auxList.add(newCode);
                 }
                 catch (Exception ignored) { }
             }
+
+            list.clear();
 
             for (int i = 0; i < auxList.size(); i++) {
                 String theCode = auxList.get(0);

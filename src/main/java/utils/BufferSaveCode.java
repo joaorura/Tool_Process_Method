@@ -42,7 +42,6 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
             this.examples.add(element.result);
         }
 
-        System.out.println(newPath);
         saveInFile(newPath, newCode);
         count += 1;
     }
