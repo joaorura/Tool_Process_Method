@@ -19,9 +19,9 @@ public class PathCreateRepositories implements InterfaceProcess {
         this.pathRead = pathRead;
 
         this.bufferSaveCode = new BufferSaveCodeInRepositories(sizeOfBuffer, pathWrite, datasets, percents);
-        RunProcessIncomplete.setAll(bufferSaveCode);
+        RunDivideInRepositories.setAll(bufferSaveCode);
 
-        this.bufferFile = new BufferFile(sizeOfBuffer, RunProcessIncomplete.class, numOfThreads, this.bufferSaveCode);
+        this.bufferFile = new BufferFile(sizeOfBuffer, RunDivideInRepositories.class, numOfThreads, this.bufferSaveCode);
     }
 
     public PathCreateRepositories(String[] args) throws IndexOutOfBoundsException {

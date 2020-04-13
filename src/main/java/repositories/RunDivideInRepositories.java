@@ -6,7 +6,7 @@ import utils.StrRunnable;
 import java.util.LinkedList;
 import java.util.List;
 
-import static utils.CodeUtils.getNameOfCode;
+import static utils.CodeUtils.getNameOfClass;
 
 public class RunDivideInRepositories extends StrRunnable {
     private static List<CodeModel> bufferSaveCode = new LinkedList<>();
@@ -21,7 +21,7 @@ public class RunDivideInRepositories extends StrRunnable {
 
     @Override
     public void run() {
-        String name = getNameOfCode(str);
+        String name = getNameOfClass(str);
         RunDivideInRepositories.bufferSaveCode.add(new CodeModel(name, str));
     }
 }

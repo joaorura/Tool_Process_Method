@@ -19,7 +19,7 @@ public class Menu {
         int type = parseInt(args[0]), limitOfCode, numberOfThreads, numberOfBuffer;
 
         InterfaceProcess interfaceProcess = null;
-        args = Arrays.copyOfRange(args, 1, args.length - 1);
+        args = Arrays.copyOfRange(args, 1, args.length);
 
         try {
             switch (type) {
@@ -40,6 +40,7 @@ public class Menu {
                     break;
                 case 5:
                     interfaceProcess = new PathIncomplete(args);
+                    break;
                 default:
                     System.out.println("Error in type described, must be 0 in 5");
                     break;

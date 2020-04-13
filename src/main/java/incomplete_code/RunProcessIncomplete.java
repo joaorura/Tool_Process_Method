@@ -1,17 +1,19 @@
 package incomplete_code;
 
 import code_models.CodeModel;
+import com.github.javaparser.ast.CompilationUnit;
 import org.javatuples.Pair;
 import utils.StrRunnable;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static utils.CodeUtils.getNameOfCode;
+import static utils.CodeUtils.getNameOfClass;
+import static utils.CodeUtils.removeFirstClass;
 
 public class RunProcessIncomplete extends StrRunnable {
     private static int limit = 1000;
-    private static List<CodeModel> bufferSaveCode = new LinkedList<>();
+    private static List<CodeModel> bufferSaveCode = null;
 
     public RunProcessIncomplete(String str) {
         super(str);
@@ -29,15 +31,19 @@ public class RunProcessIncomplete extends StrRunnable {
 
     @Override
     public void run() {
+
         try {
-            String name = getNameOfCode(str);
+            String name = getNameOfClass(str);
             Pair<String, LinkedList<String>> pair = new RemoveBlocks(name, str, RunProcessIncomplete.limit).call();
             name = pair.getValue0();
 
             for(String code : pair.getValue1()) {
-                RunProcessIncomplete.bufferSaveCode.add(new CodeModel(name, code));
+                String newCode = removeFirstClass(code, name);
+                RunProcessIncomplete.bufferSaveCode.add(new CodeModel(name, newCode));
             }
         }
-        catch (Exception ignored) { }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

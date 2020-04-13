@@ -42,6 +42,7 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
             this.examples.add(element.result);
         }
 
+        System.out.println(newPath);
         saveInFile(newPath, newCode);
         count += 1;
     }
@@ -49,13 +50,14 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
     public boolean process() {
         super.lock = true;
 
-        for(int i = 0; i < size; i++) {
+        for(int i = 0; i < super.size(); i++) {
             try {
                 CodeModel codeModel = super.get(0);
                 super.remove(0);
                 send(codeModel);
             }
             catch (Exception ignore) {
+                super.lock = false;
                 return false;
             }
         }

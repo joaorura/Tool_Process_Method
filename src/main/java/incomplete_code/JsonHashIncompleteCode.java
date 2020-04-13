@@ -60,7 +60,6 @@ public class JsonHashIncompleteCode implements InterfaceProcess {
             }
         }
 
-        RemoveBlocks.setAllAmount(size);
         return linkedList;
     }
 
@@ -88,7 +87,6 @@ public class JsonHashIncompleteCode implements InterfaceProcess {
 
     private void createInvokeProcess() throws FileNotFoundException, InterruptedException {
         List<RemoveBlocks> listProcess = createListProcess();
-        RemoveBlocks.resetAmount();
 
         ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(this.numberThreads);
         List<Future<Pair<String, LinkedList<String>>>> list;

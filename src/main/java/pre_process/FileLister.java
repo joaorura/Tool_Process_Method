@@ -6,16 +6,12 @@ import utils.ListBuffer;
 
 import java.io.File;
 
-import static utils.Utils.freeMemory;
-
 public class FileLister {
     private String dir;
 
     private String[] filters;
 
     private boolean recursive;
-
-    private static final long memoryLimit = 1000;
 
     public ListBuffer<File> files;
 
@@ -39,22 +35,8 @@ public class FileLister {
     private void processDir(File dir) {
         File [] list = dir.listFiles();
         assert list != null;
-        long memory;
+
         for (File elem : list) {
-            memory = freeMemory();
-            while (memory <= memoryLimit) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.gc();
-                Runtime.getRuntime().gc();
-                this.files.process();
-
-                memory = freeMemory();
-            }
-
             if (elem.isDirectory() && this.recursive) {
                 processDir(elem);
             } else if(checkFilters(elem)) {

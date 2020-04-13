@@ -10,10 +10,16 @@ import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static utils.Utils.usedMemory;
+
 public class BufferFile extends ListBuffer<File> {
-    private Class<StrRunnable> runnableClass;
+    private Class runnableClass;
+
     private ListBuffer<CodeModel> listBuffer;
+
     private ThreadPoolExecutor threadPoolExecutor;
+
+    private static int memoryLimit = 1000;
 
     public BufferFile(int size, Class runnableClass, int numberOfThread, ListBuffer<CodeModel> listBuffer) throws RuntimeException{
         super(size);
@@ -21,6 +27,7 @@ public class BufferFile extends ListBuffer<File> {
         if(! (runnableClass.equals(RunProcessAndFilter.class) ||
                 runnableClass.equals(RunProcessIncomplete.class) ||
                 runnableClass.equals(RunDivideInRepositories.class))) {
+            System.out.println("dasdasd");
             throw new RuntimeException("The action of RunnableClass its not implemented.");
         }
 
@@ -29,15 +36,25 @@ public class BufferFile extends ListBuffer<File> {
         this.runnableClass = runnableClass;
     }
 
+    protected String processFile(File file) {
+        return new FileProcess(file).process();
+    }
+
     public boolean process() {
         super.lock = true;
+
         File element;
 
-        for(int i = 0; i < super.size; i++) {
+        for(int i = 0; i < super.size(); i++) {
+            if(usedMemory() >= memoryLimit) {
+                super.lock = false;
+                return false;
+            }
+
             try {
                 element = super.get(0);
                 super.remove(0);
-                String str = new FileProcess(element).process();
+                String str = processFile(element);
 
                 Runnable runnable = null;
 
@@ -55,10 +72,7 @@ public class BufferFile extends ListBuffer<File> {
                     this.threadPoolExecutor.execute(runnable);
                 }
             }
-            catch (Exception ignore) {
-                this.lock = false;
-                return false;
-            }
+            catch (Exception ignore) { }
         }
 
         this.listBuffer.process();
@@ -67,11 +81,38 @@ public class BufferFile extends ListBuffer<File> {
         return true;
     }
 
+    @Override
+    public boolean add(File file) {
+        super.lock = true;
+
+        long memory = usedMemory();
+        while (memory >= memoryLimit) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.gc();
+            Runtime.getRuntime().gc();
+
+            memory = usedMemory();
+        }
+
+        super.lock = false;
+
+        return super.add(file);
+    }
+
     public void waitForExecution() throws InterruptedException {
+        System.out.println("Wating a Pool shutdow" + threadPoolExecutor.getTaskCount());
+        while(!threadPoolExecutor.isShutdown()) {
+            Thread.sleep(1000);
+        }
+
         this.threadPoolExecutor.shutdown();
+        System.out.println("Wating a Pool terminarted");
         while(!threadPoolExecutor.isTerminated()) {
-            System.out.println("Waiting end off pool");;
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
     }
 }

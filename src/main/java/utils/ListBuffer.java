@@ -3,12 +3,12 @@ package utils;
 import java.util.ArrayList;
 
 public abstract class ListBuffer<T> extends ArrayList<T> {
-    public int size = 0;
+    public int theSize;
 
     public boolean lock = false;
 
     public ListBuffer(int size) {
-        this.size = size;
+        this.theSize = size;
     }
 
     public ListBuffer() { this(0); }
@@ -17,7 +17,8 @@ public abstract class ListBuffer<T> extends ArrayList<T> {
 
     @Override
     public boolean add(T t) {
-        if(!this.lock && this.size == 0 && super.size() == this.size && super.add(t)) {
+        if(!this.lock && this.theSize != 0 && super.size() == this.theSize) {
+            super.add(t);
             return process();
         }
         else {
