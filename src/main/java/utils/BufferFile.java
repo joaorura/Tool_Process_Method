@@ -64,7 +64,7 @@ public class BufferFile extends ListBuffer<File> {
                     runnable = new RunProcessIncomplete(str);
                 }
                 else if(runnableClass.equals(RunDivideInRepositories.class)) {
-                    runnable = new RunDivideInRepositories(str);
+                    runnable = new RunDivideInRepositories(str, element.toString());
                 }
 
                 if(str != null && runnable != null) {
