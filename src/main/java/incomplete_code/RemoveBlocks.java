@@ -53,6 +53,7 @@ public class RemoveBlocks implements Callable<Pair<String, LinkedList<String>>> 
                             break;
                         }
                     }
+
                     String newCode = compilationUnitNewCode.toString();
                     this.time += 1;
                     auxList.add(newCode);

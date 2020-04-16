@@ -104,8 +104,9 @@ public class BufferFile extends ListBuffer<File> {
     }
 
     public void waitForExecution() throws InterruptedException {
-        System.out.println("Wating a Pool shutdow" + threadPoolExecutor.getTaskCount());
-        while(!threadPoolExecutor.isShutdown()) {
+        this.process();
+        System.out.println("Wating a Pool shutdow: " + threadPoolExecutor.getQueue().size());
+        while(threadPoolExecutor.getQueue().size() != 0) {
             Thread.sleep(1000);
         }
 
@@ -114,5 +115,7 @@ public class BufferFile extends ListBuffer<File> {
         while(!threadPoolExecutor.isTerminated()) {
             Thread.sleep(1000);
         }
+
+        this.process();
     }
 }
