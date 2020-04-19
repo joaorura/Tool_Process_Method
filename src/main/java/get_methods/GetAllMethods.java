@@ -5,7 +5,6 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,46 +16,29 @@ public class GetAllMethods {
     private HashMap<String, String> mapMethods = new HashMap<>();
     private ArrayList<String> answer = null;
 
-    static class MethodCallVisitor extends VoidVisitorAdapter<Void> {
-        private ArrayList<String> arrayList;
-
-        public MethodCallVisitor(ArrayList<String> arrayList) {
-            this.arrayList = arrayList;
-        }
-
-        @Override
-        public void visit(MethodCallExpr n, Void arg) {
-            String scope = n.getScope().toString();
-            String strAux;
-
-            if (scope.equals("Optional.empty")) {
-                strAux = n.getName().toString();
-                if(!arrayList.contains(strAux)) {
-                    arrayList.add(strAux);
-                }
-            }
-            try { super.visit(n, arg); }
-            catch (Exception ignore) { }
-        }
-    }
-
     public GetAllMethods(String text) throws ParseProblemException {
         this.compilationUnit = StaticJavaParser.parse(String.valueOf(text));
     }
 
     public ArrayList<String> getMethods() {
         if(this.answer == null) {
-            this.answer = new ArrayList<>();
             try {
+                this.answer = new ArrayList<>();
                 compilationUnit.findAll(MethodDeclaration.class).forEach(c -> {
-                    String method = c.getName().toString();
+                    String method = c.getNameAsString();
                     String code = c.toString();
-
                     this.mapMethods.put(method, code);
+
                     ArrayList<String> arrayList = new ArrayList<>();
                     this.mapAlgorithm.put(method, arrayList);
 
-                    c.accept(new MethodCallVisitor(arrayList), null);
+                    c.findAll(MethodCallExpr.class).forEach(d -> {
+                        String scope = d.getScope().toString(), name = d.getNameAsString();
+
+                        if(scope.equals("Optional.empty") && !arrayList.contains(name)) {
+                            arrayList.add(name);
+                        }
+                    });
                 });
             }
             catch (Exception e) { return  this.answer; }
@@ -78,6 +60,6 @@ public class GetAllMethods {
             }
         }
 
-        return (ArrayList<String>) this.answer.clone();
+        return this.answer;
     }
 }

@@ -5,6 +5,7 @@ import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import utils.CodeUtils;
 import utils.StrRunnable;
 
 import java.util.ArrayList;
@@ -16,17 +17,11 @@ import static utils.Utils.animationChars;
 public class RunProcessAndFilter extends StrRunnable {
     private static List<CodeModel> bufferSaveCode = new LinkedList<>();
 
-    private static int count = 0, limit = 1000;
+    private static int count = 0;
     private static String[] filters = {};
 
     public RunProcessAndFilter(String str) {
         super(str);
-    }
-
-    public static void setAll(String[] filters, List<CodeModel> bufferSaveCode, int limit) {
-        RunProcessAndFilter.filters = filters;
-        RunProcessAndFilter.bufferSaveCode = bufferSaveCode;
-        RunProcessAndFilter.limit = limit;
     }
 
     public static void setAll(String[] filters, List<CodeModel> bufferSaveCode) {
@@ -34,23 +29,14 @@ public class RunProcessAndFilter extends StrRunnable {
         RunProcessAndFilter.bufferSaveCode = bufferSaveCode;
     }
 
-    private void setAllNameMethod(String name, ArrayList<String> arrayList) {
-        CompilationUnit compilationUnit;
-        StringBuilder stringBuilder = new StringBuilder();
+    private void setAllNameMethod(String name, CompilationUnit compilationUnit) {
+        try {
+            compilationUnit.findAll(MethodDeclaration.class).forEach(c -> c.setName(name));
+        } catch (Exception ignore) { return; }
 
-        for (String s : arrayList) {
-            String theCode = "public class Test {\n" + s + "\n}\n";
-            try {
-                compilationUnit = StaticJavaParser.parse(theCode);
-                compilationUnit.findFirst(MethodDeclaration.class).get().setName(name);
-            } catch (Exception ignore) { continue; }
-            theCode = compilationUnit.toString();
-            theCode = theCode.substring(21, theCode.length() - 3);
-            stringBuilder.append(theCode);
-            stringBuilder.append("\n\n");
-        }
-
-        bufferSaveCode.add(new CodeModel(name, stringBuilder.toString()));
+        String theCode = compilationUnit.toString();
+        theCode = CodeUtils.removeFirstClass(theCode, "Test");
+        bufferSaveCode.add(new CodeModel(name, theCode));
     }
 
     private void processMethods() {
@@ -76,8 +62,8 @@ public class RunProcessAndFilter extends StrRunnable {
 
                 for(String filter : filters) {
                     if(name.toLowerCase().contains(filter.toLowerCase())) {
-                        setAllNameMethod(name, arrayList);
-                        return;
+                        setAllNameMethod(name, compilationUnit);
+                        break;
                     }
                 }
             }
