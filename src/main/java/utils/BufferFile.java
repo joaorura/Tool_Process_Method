@@ -52,7 +52,7 @@ public class BufferFile extends ListBuffer<File> {
 
             try {
                 element = super.get(0);
-                
+
                 super.remove(0);
                 String str = processFile(element);
 
