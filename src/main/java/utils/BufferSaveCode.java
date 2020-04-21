@@ -1,7 +1,6 @@
 package utils;
 
 import code_models.CodeModel;
-import com.github.javaparser.StaticJavaParser;
 
 import java.io.File;
 import java.util.ArrayList;
