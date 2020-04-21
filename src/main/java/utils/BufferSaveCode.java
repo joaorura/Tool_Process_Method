@@ -49,15 +49,6 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
             this.examples.add(element.result);
         }
 
-        try {
-            StaticJavaParser.parse(newCode);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(newCode);
-            return;
-        }
-
         saveInFile(newPath, newCode);
         count += 1;
     }
