@@ -15,6 +15,7 @@ public class FilterAndGetMethods {
     private BufferSaveCode bufferSaveCode;
 
     private BufferFile bufferFile;
+
     public FilterAndGetMethods(String pathFile, String[] filters, String path, int size, int amountThreads) {
         this.pathFile = pathFile;
 

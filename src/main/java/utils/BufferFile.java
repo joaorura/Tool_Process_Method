@@ -93,6 +93,7 @@ public class BufferFile extends ListBuffer<File> {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             System.gc();
             Runtime.getRuntime().gc();
 

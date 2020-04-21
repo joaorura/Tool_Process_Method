@@ -7,12 +7,13 @@ import utils.ListBuffer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import static utils.Utils.*;
 
 public class JsonGetMethods implements InterfaceProcess {
-    private LinkedList<String> algorithms = new LinkedList<>();
+    private LinkedList<HashMap<String, String>> algorithms = new LinkedList<>();
 
     private String pathRead, pathWrite;
 
@@ -40,10 +41,9 @@ public class JsonGetMethods implements InterfaceProcess {
             try {
                 String str = new FileProcess(files.get(i)).process();
                 GetAllMethods getAllMethods = new GetAllMethods(str);
-                algorithms.addAll(getAllMethods.getMethods());
+                algorithms.add(getAllMethods.getAnswer());
             }
-            catch (RuntimeException e) {
-                System.out.println(e.getMessage());
+            catch (Exception e) {
                 count++;
             }
             percent = ((float) i /  files.size()) * 100;

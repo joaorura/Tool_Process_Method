@@ -1,16 +1,13 @@
 package get_methods;
 
 import code_models.CodeModel;
-import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import utils.CodeUtils;
 import utils.StrRunnable;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static utils.Utils.animationChars;
 
@@ -29,42 +26,36 @@ public class RunProcessAndFilter extends StrRunnable {
         RunProcessAndFilter.bufferSaveCode = bufferSaveCode;
     }
 
-    private void setAllNameMethod(String name, CompilationUnit compilationUnit) {
+    private void setAllNameMethod(String name, String code) {
+        CompilationUnit compilationUnit = StaticJavaParser.parse(code);
         try {
             compilationUnit.findAll(MethodDeclaration.class).forEach(c -> c.setName(name));
         } catch (Exception ignore) { return; }
 
         String theCode = compilationUnit.toString();
-        theCode = CodeUtils.removeFirstClass(theCode, "Test");
+        theCode = CodeUtils.removeFirstClass(theCode, name);
         bufferSaveCode.add(new CodeModel(name, theCode));
     }
 
     private void processMethods() {
-        GetAllMethods getAllMethods;
-        try { getAllMethods = new GetAllMethods(this.str); }
-        catch (ParseProblemException e) { return; }
-        ArrayList<String> arrayList = getAllMethods.getMethods();
-        CompilationUnit compilationUnit;
+        HashMap<String, String> hashMap;
 
-        for(String code : arrayList) {
+        try {
+            hashMap = new GetAllMethods(this.str).getAnswer();
+        }
+        catch (Exception e) { return; }
+
+        for(Map.Entry<String, String> pair : hashMap.entrySet()) {
             System.out.print("Processing: "+ animationChars[count] + "\r");
             count = (count + 1) % 4;
 
-            if(code != null && !code.equals("null")) {
-                String theCode = "public class Test {\n" + code + "\n}\n";
-                String name;
-                try {
-                    compilationUnit = StaticJavaParser.parse(theCode);
-                    name = compilationUnit.findFirst(MethodDeclaration.class).get().getNameAsString();
-                }
-                catch (Exception ignore) { continue; }
+            String name = pair.getKey();
+            String code = pair.getValue();
 
-
-                for(String filter : filters) {
-                    if(name.toLowerCase().contains(filter.toLowerCase())) {
-                        setAllNameMethod(name, compilationUnit);
-                        break;
-                    }
+            for(String filter : filters) {
+                if(name.toLowerCase().contains(filter.toLowerCase())) {
+                    setAllNameMethod(name, code);
+                    break;
                 }
             }
         }
