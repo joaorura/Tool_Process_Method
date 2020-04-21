@@ -42,7 +42,7 @@ public class RunProcessIncomplete extends StrRunnable {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Problema ao processar codigo para gerar incompleto.");
         }
     }
 }
