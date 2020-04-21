@@ -31,14 +31,13 @@ public class RunProcessIncomplete extends StrRunnable {
 
     @Override
     public void run() {
-
         try {
             String name = getNameOfClass(str);
             Pair<String, LinkedList<String>> pair = new RemoveBlocks(name, str, RunProcessIncomplete.limit).call();
             name = pair.getValue0();
 
             for(String code : pair.getValue1()) {
-                String newCode = removeFirstClass(code, name);
+                String newCode = removeFirstClass(code);
                 RunProcessIncomplete.bufferSaveCode.add(new CodeModel(name, newCode));
             }
         }

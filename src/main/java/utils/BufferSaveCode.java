@@ -1,6 +1,7 @@
 package utils;
 
 import code_models.CodeModel;
+import com.github.javaparser.StaticJavaParser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,6 +47,15 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
 
         if(this.examples != null && !this.examples.contains(element.result)) {
             this.examples.add(element.result);
+        }
+
+        try {
+            StaticJavaParser.parse(newCode);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(newCode);
+            return;
         }
 
         saveInFile(newPath, newCode);

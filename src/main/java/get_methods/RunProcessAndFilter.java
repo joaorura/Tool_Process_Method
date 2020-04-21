@@ -33,7 +33,7 @@ public class RunProcessAndFilter extends StrRunnable {
         } catch (Exception ignore) { return; }
 
         String theCode = compilationUnit.toString();
-        theCode = CodeUtils.removeFirstClass(theCode, name);
+        theCode = CodeUtils.removeFirstClass(theCode);
         bufferSaveCode.add(new CodeModel(name, theCode));
     }
 
