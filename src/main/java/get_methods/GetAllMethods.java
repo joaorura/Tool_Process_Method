@@ -20,7 +20,7 @@ public class GetAllMethods {
         this.compilationUnit = StaticJavaParser.parse(String.valueOf(text));
     }
 
-    public HashMap<String, String> getAnswer() throws Exception {
+    public HashMap<String, String> getAnswer() {
         if(this.answer == null) {
             compilationUnit.findAll(MethodDeclaration.class).forEach(c -> {
                 String method = c.getNameAsString();
