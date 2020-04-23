@@ -19,7 +19,7 @@ public class BufferFile extends ListBuffer<File> {
 
     private ThreadPoolExecutor threadPoolExecutor;
 
-    private static int memoryLimit = 1000;
+    private static int memoryLimit = 4000;
 
     public BufferFile(int size, Class runnableClass, int numberOfThread, ListBuffer<CodeModel> listBuffer) throws RuntimeException{
         super(size);

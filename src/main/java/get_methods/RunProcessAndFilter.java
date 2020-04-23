@@ -33,7 +33,13 @@ public class RunProcessAndFilter extends StrRunnable {
         } catch (Exception ignore) { return; }
 
         String theCode = compilationUnit.toString();
-        theCode = CodeUtils.removeFirstClass(theCode);
+        try {
+            theCode = CodeUtils.removeFirstClass(theCode);
+        }
+        catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+
         bufferSaveCode.add(new CodeModel(name, theCode));
     }
 
@@ -52,10 +58,15 @@ public class RunProcessAndFilter extends StrRunnable {
             String name = pair.getKey();
             String code = pair.getValue();
 
-            for(String filter : filters) {
-                if(name.toLowerCase().contains(filter.toLowerCase())) {
-                    setAllNameMethod(name, code);
-                    break;
+            if(filters == null) {
+                setAllNameMethod(name, code);
+            }
+            else {
+                for(String filter : filters) {
+                    if(name.toLowerCase().contains(filter.toLowerCase())) {
+                        setAllNameMethod(name, code);
+                        break;
+                    }
                 }
             }
         }

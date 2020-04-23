@@ -28,7 +28,9 @@ public class PathFilterGetMethods implements InterfaceProcess {
         this.pathRead = args[2];
         this.pathWrite = args[3];
         this.pathWriteJson = args[4];
-        this.filters = args[5].split(", ");
+
+        if(args[5].equals("")) { this.filters = null; }
+        else { this.filters = args[5].split(", "); }
     }
 
     private void processFilterAndGetMethods() {
