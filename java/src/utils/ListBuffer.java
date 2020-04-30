@@ -13,13 +13,13 @@ public abstract class ListBuffer<T> extends ArrayList<T> {
 
     public ListBuffer() { this(0); }
 
-    public abstract boolean process();
+    public abstract boolean process(boolean mem);
 
     @Override
     public boolean add(T t) {
         if(!this.lock && this.theSize != 0 && super.size() == this.theSize) {
             super.add(t);
-            return process();
+            return process(true);
         }
         else {
             return super.add(t);

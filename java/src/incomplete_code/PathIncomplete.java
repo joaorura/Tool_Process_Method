@@ -26,6 +26,11 @@ public class PathIncomplete implements InterfaceProcess {
     public PathIncomplete(String[] args) throws IndexOutOfBoundsException {
         int sizeOfBuffer = parseInt(args[0]);
         int limitOfCode = parseInt(args[1]);
+
+        if(limitOfCode == -1) {
+            limitOfCode = Integer.MAX_VALUE;
+        }
+
         int numOfThreads = parseInt(args[2]);
         this.pathRead = args[3];
         String pathWrite = args[4];

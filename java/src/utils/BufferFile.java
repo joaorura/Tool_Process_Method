@@ -2,6 +2,7 @@ package utils;
 
 import code_models.CodeModel;
 import get_methods.RunProcessAndFilter;
+import get_methods.RunSetGetMethods;
 import incomplete_code.RunProcessIncomplete;
 import pre_process.FileProcess;
 import repositories.RunDivideInRepositories;
@@ -26,7 +27,8 @@ public class BufferFile extends ListBuffer<File> {
 
         if(! (runnableClass.equals(RunProcessAndFilter.class) ||
                 runnableClass.equals(RunProcessIncomplete.class) ||
-                runnableClass.equals(RunDivideInRepositories.class))) {
+                runnableClass.equals(RunDivideInRepositories.class) ||
+                runnableClass.equals(RunSetGetMethods.class))) {
             throw new RuntimeException("The action of RunnableClass its not implemented.");
         }
 
@@ -39,20 +41,19 @@ public class BufferFile extends ListBuffer<File> {
         return new FileProcess(file).process();
     }
 
-    public boolean process() {
+    public boolean process(boolean mem) {
         super.lock = true;
 
         File element;
 
         for(int i = 0; i < super.size(); i++) {
-            if(usedMemory() >= memoryLimit) {
+            if(mem && usedMemory() >= memoryLimit) {
                 super.lock = false;
                 return false;
             }
 
             try {
                 element = super.get(0);
-
                 super.remove(0);
                 String str = processFile(element);
 
@@ -62,21 +63,24 @@ public class BufferFile extends ListBuffer<File> {
                     runnable = new RunProcessAndFilter(str);
                 }
                 else if(runnableClass.equals(RunProcessIncomplete.class)) {
-                    runnable = new RunProcessIncomplete(str);
+                    runnable = new RunProcessIncomplete(str, element.toString());
                 }
                 else if(runnableClass.equals(RunDivideInRepositories.class)) {
                     runnable = new RunDivideInRepositories(str, element.toString());
                 }
+                else if(runnableClass.equals(RunSetGetMethods.class)) {
+                    runnable = new RunSetGetMethods(str, element.toString());
+                }
 
                 if(str != null && runnable != null) {
-                    this.threadPoolExecutor.execute(runnable);
+//                    runnable.run();
                     this.threadPoolExecutor.execute(runnable);
                 }
             }
             catch (Exception ignore) { }
         }
 
-        this.listBuffer.process();
+        this.listBuffer.process(true);
         super.lock = false;
 
         return true;
@@ -106,18 +110,26 @@ public class BufferFile extends ListBuffer<File> {
     }
 
     public void waitForExecution() throws InterruptedException {
-        this.process();
+        while(super.size() != 0) {
+            Thread.sleep(1000);
+            this.process(true);
+        }
+
         System.out.println("Wating a Pool shutdow: " + threadPoolExecutor.getQueue().size());
         while(threadPoolExecutor.getQueue().size() != 0) {
             Thread.sleep(1000);
         }
 
         this.threadPoolExecutor.shutdown();
+
         System.out.println("Wating a Pool terminarted");
         while(!threadPoolExecutor.isTerminated()) {
             Thread.sleep(1000);
         }
 
-        this.process();
+        while(listBuffer.size() != 0) {
+            Thread.sleep(1000);
+            listBuffer.process(true);
+        }
     }
 }

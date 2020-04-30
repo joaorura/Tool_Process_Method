@@ -1,35 +1,35 @@
 package repositories;
 
 import code_models.CodeModel;
+import utils.CodeUtils;
 import utils.StrRunnable;
 
-import java.util.LinkedList;
 import java.util.List;
 
+import static utils.CodeUtils.getNameOfClassFromFile;
 import static utils.Utils.animationChars;
 
 public class RunDivideInRepositories extends StrRunnable {
-    private static List<CodeModel> bufferSaveCode = new LinkedList<>();
-
+    private static List<CodeModel> bufferSaveCode;
     private String nameFile;
 
-    private int count = 0;
+    private static  int count = 0;
 
     public RunDivideInRepositories(String str, String path) {
         super(str);
-        String[] splited  = path.split("/");
-        this.nameFile = splited[splited.length - 1];
+
+        this.nameFile = getNameOfClassFromFile(path);
     }
 
-    public static void setAll(List<CodeModel> bufferSaveCode) {
-        RunDivideInRepositories.bufferSaveCode = bufferSaveCode;
+    public static void setAll(List<CodeModel> saveCode) {
+        bufferSaveCode = saveCode;
     }
 
     @Override
     public void run() {
         System.out.print("Processing: " + animationChars[count] + "\r");
         count = (count + 1) % 4;
-
+        this.str = CodeUtils.removeFirstClass(str );
         RunDivideInRepositories.bufferSaveCode.add(new CodeModel(nameFile, str));
     }
 }

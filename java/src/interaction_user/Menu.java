@@ -3,6 +3,7 @@ package interaction_user;
 import change_method.JsonChangeMethodName;
 import com.github.javaparser.StaticJavaParser;
 import get_methods.JsonGetMethods;
+import get_methods.PathClassGetSetMethods;
 import get_methods.PathFilterGetMethods;
 import incomplete_code.JsonHashIncompleteCode;
 import incomplete_code.PathIncomplete;
@@ -45,17 +46,17 @@ public class Menu {
                 case 6:
                     interfaceProcess = new PathCreateRepositories(args);
                     break;
+                case 7:
+                    interfaceProcess = new PathClassGetSetMethods(args);
+                    break;
                 default:
                     System.out.println("Error in type described, must be 0 in 5");
                     break;
             }
         }
-        catch ( IndexOutOfBoundsException e) {
+        catch ( Exception e) {
             System.out.println("Error in args of program.");
             e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return;
         }
 
 

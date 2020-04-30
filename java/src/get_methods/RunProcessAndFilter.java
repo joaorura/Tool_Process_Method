@@ -1,14 +1,11 @@
 package get_methods;
 
 import code_models.CodeModel;
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import utils.CodeUtils;
 import utils.StrRunnable;
 
 import java.util.*;
 
+import static utils.CodeUtils.setAllNameMethod;
 import static utils.Utils.animationChars;
 
 public class RunProcessAndFilter extends StrRunnable {
@@ -26,25 +23,10 @@ public class RunProcessAndFilter extends StrRunnable {
         RunProcessAndFilter.bufferSaveCode = bufferSaveCode;
     }
 
-    private void setAllNameMethod(String name, String code) {
-        CompilationUnit compilationUnit = StaticJavaParser.parse(code);
-        try {
-            compilationUnit.findAll(MethodDeclaration.class).forEach(c -> c.setName(name));
-        } catch (Exception ignore) { return; }
-
-        String theCode = compilationUnit.toString();
-        try {
-            theCode = CodeUtils.removeFirstClass(theCode);
-        }
-        catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-        }
-
-        bufferSaveCode.add(new CodeModel(name, theCode));
-    }
 
     private void processMethods() {
         HashMap<String, String> hashMap;
+        CodeModel codeModel;
 
         try {
             hashMap = new GetAllMethods(this.str).getAnswer();
@@ -58,17 +40,23 @@ public class RunProcessAndFilter extends StrRunnable {
             String name = pair.getKey();
             String code = pair.getValue();
 
-            if(filters == null) {
-                setAllNameMethod(name, code);
-            }
-            else {
-                for(String filter : filters) {
-                    if(name.toLowerCase().contains(filter.toLowerCase())) {
-                        setAllNameMethod(name, code);
-                        break;
+            try {
+                if(filters == null) {
+                    codeModel = setAllNameMethod(name, code);
+                    bufferSaveCode.add(codeModel);
+                }
+                else {
+                    for(String filter : filters) {
+                        if(name.toLowerCase().contains(filter.toLowerCase())) {
+                            codeModel = setAllNameMethod(name, code);
+                            bufferSaveCode.add(codeModel);
+                            break;
+                        }
                     }
                 }
             }
+            catch (RuntimeException ignore) { }
+
         }
     }
 

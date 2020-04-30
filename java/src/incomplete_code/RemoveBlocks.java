@@ -12,7 +12,7 @@ import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 
 import org.javatuples.Pair;
-import utils.Utils;
+import utils.CodeUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +21,8 @@ import java.util.concurrent.Callable;
 
 public class RemoveBlocks implements Callable<Pair<String, LinkedList<String>>> {
     private int limit, time = 0;
+
+    private static int count = 0;
 
     private LinkedList<String> linkedList = null;
     private String theCode;
@@ -39,11 +41,9 @@ public class RemoveBlocks implements Callable<Pair<String, LinkedList<String>>> 
         try {
             CompilationUnit compilationUnitCode = StaticJavaParser.parse(code);
             List<T> list = compilationUnitCode.findAll(theClass);
-
             for(T c : list) {
-                System.out.print("Processing: " + Utils.animationChars[time % 4] + "\r");
-
                 if(this.time >= this.limit) { break; }
+
                 try {
                     CompilationUnit compilationUnitNewCode = compilationUnitCode.clone();
                     List<T> theList = compilationUnitNewCode.findAll(theClass);
@@ -62,12 +62,14 @@ public class RemoveBlocks implements Callable<Pair<String, LinkedList<String>>> 
             }
 
             list.clear();
+            compilationUnitCode = null;
 
             for (int i = 0; i < auxList.size(); i++) {
                 String theCode = auxList.get(0);
                 auxList.remove(0);
                 this.linkedList.add(theCode);
-                this.remove(theCode);
+                try { this.remove(theCode); }
+                catch (StackOverflowError e) { return; }
             }
         }
         catch (Exception ignored) { }

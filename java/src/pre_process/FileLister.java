@@ -66,9 +66,6 @@ public class FileLister {
         fileLister.processFiles();
 
 
-        bufferFile.process();
-        bufferSaveCode.process();
-
         try {
             bufferFile.waitForExecution();
         } catch (InterruptedException e) {

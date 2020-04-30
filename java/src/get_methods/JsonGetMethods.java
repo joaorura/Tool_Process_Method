@@ -29,7 +29,7 @@ public class JsonGetMethods implements InterfaceProcess {
     public void processFiles(String path) {
         ListBuffer<File> files = new ListBuffer<File>() {
             @Override
-            public boolean process() { return true; }
+            public boolean process(boolean mem) { return true; }
         };
 
         FileLister fileLister = new FileLister(path, new String[]{".java"}, files, true);

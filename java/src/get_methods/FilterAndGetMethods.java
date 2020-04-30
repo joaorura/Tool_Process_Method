@@ -12,17 +12,16 @@ public class FilterAndGetMethods {
 
     public final ArrayList<String> examples = new ArrayList<>();
 
-    private BufferSaveCode bufferSaveCode;
 
     private BufferFile bufferFile;
 
     public FilterAndGetMethods(String pathFile, String[] filters, String path, int size, int amountThreads) {
         this.pathFile = pathFile;
 
-        this.bufferSaveCode = new BufferSaveCode(size, path, examples);
-        RunProcessAndFilter.setAll(filters, this.bufferSaveCode);
+        BufferSaveCode bufferSaveCode = new BufferSaveCode(size, path, examples);
+        RunProcessAndFilter.setAll(filters, bufferSaveCode);
 
-        this.bufferFile = new BufferFile(size, RunProcessAndFilter.class, amountThreads, this.bufferSaveCode);
+        this.bufferFile = new BufferFile(size, RunProcessAndFilter.class, amountThreads, bufferSaveCode);
     }
 
 
@@ -31,10 +30,6 @@ public class FilterAndGetMethods {
         FileLister fileLister = new FileLister(this.pathFile, new String[]{".java"}, this.bufferFile, true);
         System.out.println("Executing");
         fileLister.processFiles();
-
-
-        bufferFile.process();
-        bufferSaveCode.process();
 
         try {
             bufferFile.waitForExecution();

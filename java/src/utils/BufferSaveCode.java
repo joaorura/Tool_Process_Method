@@ -26,6 +26,7 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
     public BufferSaveCode(int size, String path) { this(size, path, null); }
 
     protected String getNameOfClass(CodeModel element) {
+        count += 1;
         return element.result.toUpperCase() + count;
     }
 
@@ -41,6 +42,7 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
 
     private void send(CodeModel element) {
         this.nameOfClass = getNameOfClass(element);
+
         String newPath = getNewPath(this.nameOfClass);
         String newCode = getNewCode(element.code);
 
@@ -49,10 +51,9 @@ public class BufferSaveCode extends ListBuffer<CodeModel> {
         }
 
         saveInFile(newPath, newCode);
-        count += 1;
     }
 
-    public boolean process() {
+    public boolean process(boolean mem) {
         super.lock = true;
 
         for(int i = 0; i < super.size(); i++) {

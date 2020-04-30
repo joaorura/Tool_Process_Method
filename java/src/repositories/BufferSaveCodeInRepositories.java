@@ -4,6 +4,7 @@ import code_models.CodeModel;
 import utils.BufferSaveCode;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BufferSaveCodeInRepositories extends BufferSaveCode {
@@ -16,11 +17,15 @@ public class BufferSaveCodeInRepositories extends BufferSaveCode {
     private String[] dataset;
 
 
-    public BufferSaveCodeInRepositories(int size, String path, String[] dataset, double[] percents) {
+    public BufferSaveCodeInRepositories(int size, String path, String[] dataset, double[] percents) throws RuntimeException{
         super(size, path);
 
         File file = new File(path);
-        file.mkdirs();
+        System.out.println(file);
+        if(!file.exists() && !file.mkdirs()) {
+            throw new RuntimeException();
+        }
+
         this.dataset = dataset;
         for(String str: dataset) {
             file = new File(path + "/" + str);
@@ -28,7 +33,9 @@ public class BufferSaveCodeInRepositories extends BufferSaveCode {
         }
 
         this.percents = percents;
-        this.actualCounts = new int[] { 0 };
+
+        this.actualCounts = new int[this.percents.length];
+        Arrays.fill(actualCounts, 0);
     }
 
     @Override
@@ -48,7 +55,6 @@ public class BufferSaveCodeInRepositories extends BufferSaveCode {
         } while (percent >= this.percents[sorted]);
 
         this.actualCounts[sorted] += 1;
-        System.out.println(super.path + "/" + this.dataset[sorted] + "/" + nameOfClass + ".java");
         return super.path + "/" + this.dataset[sorted] + "/" + nameOfClass + ".java";
     }
 }
