@@ -1,6 +1,7 @@
 package utils;
 
 import code_models.CodeModel;
+import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -39,7 +40,9 @@ public class CodeUtils {
 
     public static String getNameOfClassFromFile (String str) throws RuntimeException {
         String[] splited  = str.split("/");
-        return splited[splited.length - 1].replace(".java", "");
+        String theStr = splited[splited.length - 1].replace(".java", "");
+        theStr = theStr.replaceAll("_[0-9]*", "");
+        return theStr;
     }
 
     public static CodeModel setAllNameMethod(String name, String code) throws RuntimeException {
@@ -49,7 +52,7 @@ public class CodeUtils {
         try {
             compilationUnit = StaticJavaParser.parse(code);
             compilationUnit.findAll(MethodDeclaration.class).forEach(c -> c.setName(name));
-        } catch (Exception ignore) { throw new RuntimeException(code); }
+        } catch (ParseProblemException e) { throw new RuntimeException(e); }
 
         String theCode = compilationUnit.toString();
         try {

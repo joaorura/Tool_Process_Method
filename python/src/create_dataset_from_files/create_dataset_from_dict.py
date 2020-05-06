@@ -9,8 +9,16 @@ from ..utils.list import max_list_index
 
 class CreateDatasetFromDict:
     def __init__(self, dict_process: dict, base_path: str, names: list, sizes: list):
-        self.dict_process = dict_process
+        count = 0
+        for i in sizes:
+            count += i
 
+        if int(count) != 1:
+            raise Exception('Error in sizes list')
+        elif len(sizes) != len(names):
+            raise Exception('Error in size of lists.')
+
+        self.dict_process = dict_process
         self.paths = []
 
         create_dir(base_path)

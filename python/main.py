@@ -6,8 +6,8 @@ END_WITH: str = ".java"
 BASE_PATH: str = "/media/joaorura/7016D4F016D4B7F4/Workspace/Data/theTest_dataset"
 
 FILTERS: list = ['[0-9|]*']
-NAMES: list = ['train', 'val']
-SIZES: list = [0.8, 0.2]
+NAMES: list = ['test', 'train', 'val']
+SIZES: list = [0.05, 0.75, 0.2]
 
 
 def main():

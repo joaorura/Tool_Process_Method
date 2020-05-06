@@ -16,11 +16,14 @@ public class RunSetGetMethods extends StrRunnable {
 
     private static  int count = 0;
 
+    private String fileName, nameClass;
 
 
     public RunSetGetMethods(String str, String fileName) {
         super(str);
 
+        this.fileName = fileName;
+        this.nameClass = CodeUtils.getNameOfClassFromFile(fileName);
         if(!CodeUtils.containAClass(str)) {
             super.str = "public class " + CodeUtils.getNameOfClassFromFile(fileName) + " {\n" + str + "\n}\n";
         }
@@ -37,14 +40,14 @@ public class RunSetGetMethods extends StrRunnable {
         count = (count + 1) % 4;
 
         try {
-            String name = CodeUtils.getNameOfClass(str).replaceAll("_*[0-9]*", "");
-            if(!examples.contains(name)) { examples.add(name); }
+            if(!examples.contains(this.nameClass)) { examples.add(this.nameClass); }
 
-            CodeModel codeModel = CodeUtils.setAllNameMethod(name, str);
+            CodeModel codeModel = CodeUtils.setAllNameMethod(this.nameClass, str);
             bufferSaveCode.add(codeModel);
         }
         catch (RuntimeException e) {
-            System.out.println("Error");
+            System.out.println("Error!!\tCodePath:" + this.fileName);
+            e.printStackTrace();
         }
 
     }
